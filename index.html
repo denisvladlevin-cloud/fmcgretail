@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FMCG Retail — Торговый консорциум | Здоровье и экологичность</title>
+<meta name="description" content="FMCG Retail — торговый консорциум в Казахстане. Поставки продуктов с акцентом на здоровье и экологичность для крупнейших розничных сетей." />
+<link rel="icon" type="image/jpeg" href="assets/logo.jpeg" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green-900:#1B4332;
+  --green-700:#2E7D5B;
+  --green-500:#52B788;
+  --green-100:#E8F3EE;
+  --beige:#F7F4EE;
+  --ink:#0F1A14;
+  --muted:#6B7770;
+  --line:#E2E6E1;
+  --white:#FFFFFF;
+  --radius:18px;
+  --max:1240px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Manrope',-apple-system,BlinkMacSystemFont,sans-serif;
+  font-size:16px;line-height:1.6;color:var(--ink);
+  background:var(--white);
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+.container{max-width:var(--max);margin:0 auto;padding:0 28px}
+.serif{font-family:'Cormorant Garamond',serif;font-weight:500;letter-spacing:-0.01em}
+
+/* ===== HEADER ===== */
+.header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(255,255,255,0.85);
+  backdrop-filter:saturate(140%) blur(14px);
+  -webkit-backdrop-filter:saturate(140%) blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.header-row{display:flex;align-items:center;justify-content:space-between;height:80px;gap:24px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:18px;letter-spacing:-0.02em;flex-shrink:0}
+.brand-logo{
+  width:46px;height:46px;border-radius:12px;
+  background:#fff;padding:3px;object-fit:contain;
+  box-shadow:0 4px 14px rgba(27,67,50,0.12);
+  border:1px solid var(--line);
+}
+.brand-text small{display:block;font-weight:400;font-size:11px;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-top:1px}
+.nav{display:flex;gap:30px;flex:1;justify-content:center}
+.nav a{font-size:14px;color:var(--ink);opacity:0.78;transition:opacity .2s;white-space:nowrap}
+.nav a:hover{opacity:1;color:var(--green-700)}
+.header-right{display:flex;align-items:center;gap:14px;flex-shrink:0}
+.lang-switcher{
+  display:flex;align-items:center;gap:2px;
+  padding:4px;border-radius:999px;
+  background:var(--green-100);
+  border:1px solid rgba(46,125,91,0.12);
+}
+.lang-btn{
+  border:0;background:transparent;cursor:pointer;
+  padding:6px 12px;border-radius:999px;
+  font-size:12px;font-weight:700;letter-spacing:0.06em;
+  color:var(--green-900);opacity:0.65;
+  transition:all .2s;
+}
+.lang-btn:hover{opacity:1}
+.lang-btn.active{background:#fff;opacity:1;box-shadow:0 2px 6px rgba(27,67,50,0.10)}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 22px;border-radius:999px;
+  font-weight:600;font-size:14px;
+  border:1px solid var(--green-700);
+  background:var(--green-700);color:#fff;
+  transition:transform .15s ease, box-shadow .2s ease, background .2s;
+  cursor:pointer;white-space:nowrap;
+}
+.btn:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(46,125,91,0.25);background:var(--green-900)}
+.btn-ghost{background:transparent;color:var(--green-900);border-color:var(--line)}
+.btn-ghost:hover{background:var(--green-100);border-color:var(--green-500);color:var(--green-900);box-shadow:none}
+.menu-toggle{display:none;background:none;border:0;font-size:22px;cursor:pointer}
+
+/* ===== HERO ===== */
+.hero{
+  position:relative;overflow:hidden;
+  padding:96px 0 80px;
+  background:
+    radial-gradient(1100px 500px at 85% -10%, rgba(82,183,136,0.18), transparent 60%),
+    radial-gradient(800px 400px at 0% 110%, rgba(82,183,136,0.10), transparent 60%),
+    linear-gradient(180deg, #fbfdfb 0%, #ffffff 100%);
+}
+.hero-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:72px;align-items:center}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:8px 16px;border-radius:999px;
+  background:var(--green-100);color:var(--green-900);
+  font-size:13px;font-weight:600;letter-spacing:0.02em;
+  border:1px solid rgba(46,125,91,0.15);
+}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--green-500);box-shadow:0 0 0 4px rgba(82,183,136,0.18)}
+.h1{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:500;
+  font-size:clamp(40px,5.4vw,72px);
+  line-height:1.04;letter-spacing:-0.02em;
+  color:var(--green-900);
+  margin:22px 0 24px;
+}
+.h1 em{font-style:italic;color:var(--green-700)}
+.lead{font-size:18px;color:var(--muted);max-width:540px;margin-bottom:36px}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+.hero-stats{display:flex;gap:40px;margin-top:54px;padding-top:30px;border-top:1px solid var(--line)}
+.hero-stats .num{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:600;color:var(--green-900);line-height:1}
+.hero-stats .lbl{font-size:13px;color:var(--muted);margin-top:6px}
+
+.hero-art{position:relative;aspect-ratio:1/1;max-width:520px;justify-self:end;width:100%}
+.leaf-card{
+  position:absolute;inset:0;border-radius:32px;overflow:hidden;
+  background:#fff;
+  box-shadow:0 30px 80px rgba(27,67,50,0.18);
+}
+.leaf-card svg.scene{width:100%;height:100%;display:block}
+.float-tag{
+  position:absolute;background:#fff;border-radius:16px;padding:14px 18px;
+  display:flex;align-items:center;gap:10px;
+  box-shadow:0 18px 40px rgba(15,26,20,0.10);
+  font-size:13px;font-weight:600;
+  z-index:2;
+}
+.float-tag .ic{
+  width:36px;height:36px;border-radius:10px;background:var(--green-100);
+  display:grid;place-items:center;color:var(--green-700);
+}
+.tag-1{top:8%;left:-30px}
+.tag-2{bottom:14%;right:-20px}
+.tag-3{bottom:-20px;left:20%}
+
+/* ===== TICKER ===== */
+.ticker-section{padding:54px 0;background:var(--beige);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.ticker-label{
+  text-align:center;font-size:12px;color:var(--muted);
+  letter-spacing:0.22em;text-transform:uppercase;font-weight:600;margin-bottom:28px;
+}
+.ticker{
+  position:relative;overflow:hidden;
+  mask-image:linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%);
+  -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%);
+}
+.ticker-track{
+  display:flex;gap:64px;width:max-content;
+  animation:scroll 40s linear infinite;
+}
+.ticker:hover .ticker-track{animation-play-state:paused}
+@keyframes scroll{
+  from{transform:translateX(0)}
+  to{transform:translateX(-50%)}
+}
+.logo{
+  display:flex;align-items:center;justify-content:center;
+  height:64px;padding:0 12px;
+  filter:grayscale(100%);
+  opacity:0.55;
+  transition:opacity .25s, filter .25s;
+  white-space:nowrap;
+  color:#1B4332;
+}
+.logo:hover{opacity:1;filter:grayscale(0)}
+.logo-text{
+  font-weight:800;font-size:26px;letter-spacing:-0.02em;
+  display:flex;align-items:center;gap:8px;
+}
+.logo-mark{width:30px;height:30px;display:inline-block}
+
+/* ===== SECTION BASE ===== */
+.section{padding:110px 0}
+.section-header{max-width:760px;margin-bottom:60px}
+.kicker{
+  display:inline-block;font-size:12px;font-weight:700;
+  color:var(--green-700);letter-spacing:0.22em;text-transform:uppercase;margin-bottom:16px;
+}
+.h2{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(32px,4vw,52px);line-height:1.1;letter-spacing:-0.02em;color:var(--green-900)}
+.h2 em{font-style:italic;color:var(--green-700)}
+.section-sub{font-size:17px;color:var(--muted);margin-top:20px;max-width:640px}
+
+/* ===== CONSORTIUM (О нас) ===== */
+.consortium{background:linear-gradient(180deg, #fff 0%, #fbfdfb 100%)}
+.pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.pillar{
+  padding:32px 28px;border:1px solid var(--line);border-radius:var(--radius);
+  background:#fff;transition:transform .25s, box-shadow .25s, border-color .25s;
+}
+.pillar:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(15,26,20,0.06);border-color:var(--green-500)}
+.pillar-ic{
+  width:52px;height:52px;border-radius:14px;
+  background:var(--green-100);color:var(--green-700);
+  display:grid;place-items:center;margin-bottom:22px;
+}
+.pillar h3{font-size:18px;font-weight:700;color:var(--green-900);margin-bottom:10px}
+.pillar p{font-size:14px;color:var(--muted);line-height:1.6}
+
+/* ===== CATEGORIES ===== */
+.categories{background:var(--beige)}
+.cats{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.cat{
+  position:relative;border-radius:var(--radius);overflow:hidden;
+  background:#fff;border:1px solid var(--line);
+  padding:36px 32px;min-height:260px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  transition:transform .25s, box-shadow .25s;
+}
+.cat:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(15,26,20,0.08)}
+.cat-illu{
+  position:absolute;right:-20px;top:-20px;
+  width:160px;height:160px;border-radius:50%;
+  background:linear-gradient(135deg, var(--green-100), #fff);
+  opacity:0.7;
+}
+.cat-num{
+  font-family:'Cormorant Garamond',serif;font-size:14px;
+  color:var(--green-700);font-weight:600;letter-spacing:0.18em;
+  position:relative;z-index:1;
+}
+.cat h3{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:600;color:var(--green-900);position:relative;z-index:1;line-height:1.1;margin:14px 0 10px}
+.cat p{font-size:14px;color:var(--muted);position:relative;z-index:1}
+.cat-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:600;color:var(--green-700);
+  margin-top:22px;position:relative;z-index:1;
+}
+
+/* ===== FOR RETAIL ===== */
+.retail{background:var(--green-900);color:#fff;position:relative;overflow:hidden}
+.retail::before{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(700px 400px at 90% 10%, rgba(82,183,136,0.25), transparent 60%),
+    radial-gradient(500px 300px at 0% 100%, rgba(82,183,136,0.18), transparent 60%);
+  pointer-events:none;
+}
+.retail .container{position:relative}
+.retail .h2{color:#fff}
+.retail .h2 em{color:var(--green-500)}
+.retail .kicker{color:var(--green-500)}
+.retail .section-sub{color:rgba(255,255,255,0.72)}
+.retail-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:60px;align-items:start}
+.benefits{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:40px}
+.benefit{padding:22px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10);border-radius:14px}
+.benefit .b-num{font-family:'Cormorant Garamond',serif;font-size:34px;color:var(--green-500);font-weight:600;line-height:1}
+.benefit .b-t{font-size:14px;font-weight:600;margin:10px 0 6px}
+.benefit .b-d{font-size:13px;color:rgba(255,255,255,0.65);line-height:1.5}
+.cta-card{
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10);
+  border-radius:24px;padding:36px;
+  backdrop-filter:blur(10px);
+}
+.cta-card h4{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;margin-bottom:8px}
+.cta-card p{font-size:14px;color:rgba(255,255,255,0.7);margin-bottom:24px}
+.cta-card .btn{background:#fff;color:var(--green-900);border-color:#fff}
+.cta-card .btn:hover{background:var(--green-500);color:#fff;border-color:var(--green-500)}
+.cta-list{margin-top:22px;border-top:1px solid rgba(255,255,255,0.10);padding-top:22px}
+.cta-list-item{display:flex;align-items:center;gap:12px;padding:8px 0;font-size:14px;color:rgba(255,255,255,0.85)}
+.cta-list-item svg{flex-shrink:0;color:var(--green-500)}
+
+/* ===== CONTACTS ===== */
+.contacts{background:linear-gradient(180deg, #fff 0%, #fbfdfb 100%)}
+.contacts-grid{display:grid;grid-template-columns:1fr 1.05fr;gap:60px;align-items:center}
+.contact-card{
+  border:1px solid var(--line);border-radius:24px;padding:36px;
+  background:#fff;display:flex;flex-direction:column;gap:18px;
+  box-shadow:0 8px 30px rgba(15,26,20,0.04);
+}
+.person{display:flex;align-items:center;gap:18px;margin-bottom:6px}
+.avatar{
+  width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg, var(--green-500), var(--green-900));
+  display:grid;place-items:center;color:#fff;font-weight:700;font-size:22px;
+  font-family:'Cormorant Garamond',serif;
+}
+.person h4{font-size:20px;font-weight:700;color:var(--green-900)}
+.person p{font-size:13px;color:var(--muted)}
+.contact-row{
+  display:flex;align-items:center;gap:14px;
+  padding:16px 18px;border:1px solid var(--line);border-radius:14px;
+  cursor:pointer;transition:border-color .2s, background .2s, transform .15s;
+  font-size:15px;color:var(--ink);
+  position:relative;
+}
+.contact-row:hover{border-color:var(--green-500);background:#fbfdfb;transform:translateY(-1px)}
+.contact-row .ic{
+  width:42px;height:42px;border-radius:12px;background:var(--green-100);
+  color:var(--green-700);display:grid;place-items:center;flex-shrink:0;
+}
+.contact-row .info{flex:1;min-width:0}
+.contact-row .info-l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:2px}
+.contact-row .info-v{font-weight:600;color:var(--green-900);font-size:16px}
+.contact-row .arrow{color:var(--muted);transition:transform .2s, color .2s}
+.contact-row:hover .arrow{color:var(--green-700);transform:translateX(3px)}
+
+.contacts-side{position:relative}
+.contacts-quote{
+  font-family:'Cormorant Garamond',serif;
+  font-size:34px;line-height:1.2;color:var(--green-900);
+  font-weight:500;
+}
+.contacts-quote em{font-style:italic;color:var(--green-700)}
+.contacts-meta{margin-top:28px;color:var(--muted);font-size:14px;line-height:1.7}
+.geo-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.geo-tag{padding:8px 14px;border-radius:999px;background:var(--green-100);color:var(--green-900);font-size:13px;font-weight:600;border:1px solid rgba(46,125,91,0.15)}
+
+/* ===== EMAIL POPOVER ===== */
+.popover{
+  position:absolute;top:calc(100% + 10px);right:0;
+  min-width:240px;background:#fff;border:1px solid var(--line);
+  border-radius:14px;box-shadow:0 24px 50px rgba(15,26,20,0.12);
+  padding:8px;z-index:30;
+  opacity:0;transform:translateY(-6px);pointer-events:none;
+  transition:opacity .18s, transform .18s;
+}
+.popover.open{opacity:1;transform:translateY(0);pointer-events:auto}
+.pop-item{
+  display:flex;align-items:center;gap:12px;padding:12px 14px;
+  border-radius:10px;font-size:14px;color:var(--ink);
+  cursor:pointer;transition:background .15s;
+}
+.pop-item:hover{background:var(--green-100)}
+.pop-item .pi{width:28px;height:28px;border-radius:8px;background:var(--green-100);color:var(--green-700);display:grid;place-items:center;flex-shrink:0}
+.pop-item .pi.gmail{background:#fce8e6;color:#c5221f}
+.pop-item .pi.outlook{background:#e6effd;color:#0f6cbd}
+.pop-item .pi.copy{background:var(--green-100);color:var(--green-700)}
+.pop-item .pi.mail{background:#fff4dd;color:#b97300}
+.toast{
+  position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(20px);
+  background:var(--green-900);color:#fff;padding:12px 22px;border-radius:999px;
+  font-size:14px;font-weight:600;
+  box-shadow:0 14px 40px rgba(15,26,20,0.25);
+  opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;z-index:100;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ===== FOOTER ===== */
+.footer{
+  background:#0F1A14;color:#cfd6d2;padding:80px 0 30px;
+  position:relative;overflow:hidden;
+}
+.footer::before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(800px 300px at 90% 0%, rgba(82,183,136,0.10), transparent 60%);
+  pointer-events:none;
+}
+.footer .container{position:relative}
+.footer-top{
+  display:grid;grid-template-columns:1.4fr 1fr 1fr 1.1fr;gap:48px;
+  padding-bottom:50px;border-bottom:1px solid rgba(255,255,255,0.08);
+}
+.footer-brand .brand{color:#fff}
+.footer-brand .brand-text small{color:rgba(255,255,255,0.5)}
+.footer-brand p{margin-top:18px;font-size:14px;color:rgba(255,255,255,0.6);line-height:1.7;max-width:320px}
+.footer h5{color:#fff;font-size:13px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:18px}
+.footer ul{list-style:none}
+.footer ul li{padding:6px 0}
+.footer ul a{font-size:14px;color:rgba(255,255,255,0.65);transition:color .2s}
+.footer ul a:hover{color:var(--green-500)}
+.requisites{font-size:13px;line-height:1.7;color:rgba(255,255,255,0.65)}
+.requisites > div{margin-bottom:6px}
+.requisites strong{color:#fff;font-weight:600;display:block;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:1px}
+.requisites .mono{font-family:'SF Mono',ui-monospace,Consolas,Menlo,monospace;font-size:13px;letter-spacing:0.02em;color:rgba(255,255,255,0.85);word-break:break-all}
+.requisites span:not(.mono){color:rgba(255,255,255,0.85)}
+.footer-bottom{
+  padding-top:30px;display:flex;justify-content:space-between;align-items:center;
+  font-size:13px;color:rgba(255,255,255,0.45);flex-wrap:wrap;gap:14px;
+}
+.footer-bottom .legal{display:flex;gap:24px}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:1080px){
+  .nav{gap:20px}
+}
+@media(max-width:980px){
+  .hero{padding:64px 0 56px}
+  .hero-grid{grid-template-columns:1fr;gap:48px}
+  .hero-art{justify-self:center;max-width:420px}
+  .pillars{grid-template-columns:repeat(2,1fr)}
+  .cats{grid-template-columns:1fr 1fr}
+  .retail-grid{grid-template-columns:1fr;gap:40px}
+  .contacts-grid{grid-template-columns:1fr;gap:40px}
+  .footer-top{grid-template-columns:1fr 1fr;gap:36px}
+  .nav{display:none}
+  .menu-toggle{display:block}
+  .section{padding:80px 0}
+}
+@media(max-width:600px){
+  .hero-stats{flex-wrap:wrap;gap:28px}
+  .pillars{grid-template-columns:1fr}
+  .cats{grid-template-columns:1fr}
+  .benefits{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr;gap:30px}
+  .footer-bottom{flex-direction:column;align-items:flex-start}
+  .container{padding:0 20px}
+  .header-row{height:68px}
+  .brand-text{font-size:16px}
+  .brand-logo{width:40px;height:40px}
+  .hero{padding:48px 0 40px}
+  .section{padding:64px 0}
+  .pillar,.cat,.contact-card{padding:24px 22px}
+  .lang-btn{padding:5px 9px;font-size:11px}
+  .header-right .btn{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+  <div class="container header-row">
+    <a href="#" class="brand" aria-label="FMCG Retail">
+      <img src="assets/logo.jpeg" alt="FMCG Retail" class="brand-logo" />
+      <span class="brand-text">
+        FMCG Retail
+        <small data-i18n="brand.tagline">Торговый консорциум</small>
+      </span>
+    </a>
+    <nav class="nav" aria-label="Главная навигация">
+      <a href="#about" data-i18n="nav.about">О консорциуме</a>
+      <a href="#categories" data-i18n="nav.categories">Категории</a>
+      <a href="#partners" data-i18n="nav.partners">Партнёры</a>
+      <a href="#retail" data-i18n="nav.retail">Сетям</a>
+      <a href="#contacts" data-i18n="nav.contacts">Контакты</a>
+    </nav>
+    <div class="header-right">
+      <div class="lang-switcher" role="group" aria-label="Language">
+        <button type="button" class="lang-btn" data-lang="kz">KZ</button>
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="ru">RU</button>
+      </div>
+      <a href="#contacts" class="btn">
+        <span data-i18n="nav.cta_text">Связаться</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-content">
+      <span class="eyebrow"><span class="dot"></span> <span data-i18n="hero.eyebrow">Торговый консорциум · Алматы, Казахстан</span></span>
+      <h1 class="h1" data-i18n-html="hero.title">Продукты, которым доверяют <em>сети и семьи</em> Центральной Азии</h1>
+      <p class="lead" data-i18n="hero.lead">FMCG Retail — торговый консорциум, объединяющий проверенных производителей и крупнейшие розничные сети. Мы делаем ставку на здоровье потребителя и экологичную упаковку — и берём на себя всю логистику, импорт и финансирование товара.</p>
+      <div class="hero-cta">
+        <a href="#retail" class="btn">
+          <span data-i18n="hero.cta1">Стать нашим клиентом</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+        <a href="#about" class="btn btn-ghost" data-i18n="hero.cta2">О консорциуме</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="num" data-i18n="hero.stat1_v">7+</div>
+          <div class="lbl" data-i18n="hero.stat1_l">розничных сетей-партнёров</div>
+        </div>
+        <div>
+          <div class="num" data-i18n="hero.stat2_v">4</div>
+          <div class="lbl" data-i18n="hero.stat2_l">страны поставок</div>
+        </div>
+        <div>
+          <div class="num" data-i18n="hero.stat3_v">100%</div>
+          <div class="lbl" data-i18n="hero.stat3_l">контроль качества</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-art" aria-hidden="true">
+      <div class="leaf-card">
+        <svg class="scene" viewBox="0 0 520 520" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Фермер на пшеничном поле">
+          <defs>
+            <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FFF1C9"/>
+              <stop offset="55%" stop-color="#F7F4EE"/>
+              <stop offset="100%" stop-color="#E8F3EE"/>
+            </linearGradient>
+            <linearGradient id="fieldG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#7DC4A0"/>
+              <stop offset="100%" stop-color="#2E7D5B"/>
+            </linearGradient>
+            <radialGradient id="sunG" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#FFE08A"/>
+              <stop offset="65%" stop-color="#FBBF24"/>
+              <stop offset="100%" stop-color="#F59E0B"/>
+            </radialGradient>
+          </defs>
+
+          <!-- Sky -->
+          <rect width="520" height="520" fill="url(#skyG)"/>
+
+          <!-- Sun rays -->
+          <g opacity="0.45" stroke="#FBBF24" stroke-width="3" stroke-linecap="round">
+            <line x1="400" y1="50" x2="400" y2="30"/>
+            <line x1="455" y1="75" x2="470" y2="60"/>
+            <line x1="475" y1="125" x2="495" y2="125"/>
+            <line x1="455" y1="175" x2="470" y2="190"/>
+            <line x1="345" y1="75" x2="330" y2="60"/>
+            <line x1="325" y1="125" x2="305" y2="125"/>
+            <line x1="345" y1="175" x2="330" y2="190"/>
+          </g>
+
+          <!-- Sun -->
+          <circle cx="400" cy="125" r="50" fill="url(#sunG)" opacity="0.95"/>
+
+          <!-- Distant hills -->
+          <path d="M-20 330 Q120 270 270 305 Q400 330 540 295 L540 410 L-20 410 Z" fill="#B8DCC4"/>
+
+          <!-- Mid hills -->
+          <path d="M-20 370 Q160 330 320 360 Q430 385 540 360 L540 430 L-20 430 Z" fill="#8CC4A3"/>
+
+          <!-- Foreground field -->
+          <path d="M-20 405 Q260 385 540 410 L540 540 L-20 540 Z" fill="url(#fieldG)"/>
+
+          <!-- Wheat stalks (background, behind farmer) -->
+          <g stroke="#E0A458" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.85">
+            <path d="M40 470 L42 405"/>
+            <path d="M70 480 L72 410"/>
+            <path d="M100 472 L102 404"/>
+            <path d="M125 482 L127 412"/>
+            <path d="M395 470 L397 405"/>
+            <path d="M422 482 L424 412"/>
+            <path d="M450 472 L452 404"/>
+            <path d="M478 478 L480 408"/>
+          </g>
+          <g fill="#FBBF60">
+            <ellipse cx="42" cy="403" rx="3" ry="9"/>
+            <ellipse cx="72" cy="408" rx="3" ry="9"/>
+            <ellipse cx="102" cy="402" rx="3" ry="9"/>
+            <ellipse cx="127" cy="410" rx="3" ry="9"/>
+            <ellipse cx="397" cy="403" rx="3" ry="9"/>
+            <ellipse cx="424" cy="410" rx="3" ry="9"/>
+            <ellipse cx="452" cy="402" rx="3" ry="9"/>
+            <ellipse cx="480" cy="406" rx="3" ry="9"/>
+          </g>
+
+          <!-- ===== FARMER ===== -->
+          <g>
+            <!-- Right arm holding wheat (drawn first so body covers shoulder) -->
+            <path d="M295 380 Q325 380 332 415" stroke="#2E7D5B" stroke-width="22" stroke-linecap="round" fill="none"/>
+
+            <!-- Wheat sheaf in right hand -->
+            <g transform="translate(335, 410) rotate(18)">
+              <g stroke="#8B5A2B" stroke-width="1.6" stroke-linecap="round">
+                <line x1="-8" y1="0" x2="-8" y2="42"/>
+                <line x1="-3" y1="-2" x2="-3" y2="42"/>
+                <line x1="2" y1="-3" x2="2" y2="42"/>
+                <line x1="7" y1="-1" x2="7" y2="42"/>
+              </g>
+              <g fill="#FBBF24" stroke="#E0A458" stroke-width="0.8">
+                <ellipse cx="-8" cy="-4" rx="3.5" ry="11"/>
+                <ellipse cx="-3" cy="-8" rx="3.5" ry="11"/>
+                <ellipse cx="2" cy="-9" rx="3.5" ry="11"/>
+                <ellipse cx="7" cy="-6" rx="3.5" ry="11"/>
+              </g>
+              <!-- Wheat grain detail lines -->
+              <g stroke="#E0A458" stroke-width="0.6" opacity="0.6">
+                <line x1="-8" y1="-9" x2="-12" y2="-13"/>
+                <line x1="-8" y1="-4" x2="-12" y2="-2"/>
+                <line x1="-3" y1="-13" x2="-7" y2="-17"/>
+                <line x1="2" y1="-14" x2="-2" y2="-18"/>
+                <line x1="7" y1="-11" x2="3" y2="-15"/>
+                <line x1="7" y1="-6" x2="11" y2="-4"/>
+              </g>
+              <!-- Twine binding -->
+              <rect x="-12" y="14" width="24" height="6" rx="2" fill="#8B5A2B"/>
+            </g>
+
+            <!-- Body / overalls strap -->
+            <path d="M218 365 Q260 350 302 365 L308 470 Q260 482 212 470 Z" fill="#2E7D5B"/>
+            <!-- Overalls strap detail -->
+            <path d="M232 370 L237 470" stroke="#1B4332" stroke-width="2" opacity="0.4" fill="none"/>
+            <path d="M288 370 L283 470" stroke="#1B4332" stroke-width="2" opacity="0.4" fill="none"/>
+            <!-- Overalls pocket -->
+            <rect x="245" y="410" width="30" height="22" rx="3" fill="none" stroke="#1B4332" stroke-width="1.5" opacity="0.45"/>
+            <!-- Overalls buttons -->
+            <circle cx="232" cy="372" r="2.5" fill="#FBBF24"/>
+            <circle cx="288" cy="372" r="2.5" fill="#FBBF24"/>
+
+            <!-- Left arm -->
+            <path d="M225 378 Q200 395 198 425" stroke="#52B788" stroke-width="22" stroke-linecap="round" fill="none"/>
+            <!-- Left hand -->
+            <circle cx="198" cy="432" r="11" fill="#F4D5B0"/>
+            <!-- Right hand (around wheat) -->
+            <circle cx="335" cy="418" r="11" fill="#F4D5B0"/>
+
+            <!-- T-shirt under overalls (visible at top) -->
+            <path d="M225 365 Q260 355 295 365 L295 380 Q260 372 225 380 Z" fill="#52B788"/>
+
+            <!-- Neck -->
+            <rect x="248" y="340" width="24" height="22" fill="#F4D5B0"/>
+
+            <!-- Head -->
+            <circle cx="260" cy="318" r="36" fill="#F4D5B0"/>
+
+            <!-- Cheeks -->
+            <circle cx="240" cy="325" r="5" fill="#F8B6A0" opacity="0.7"/>
+            <circle cx="280" cy="325" r="5" fill="#F8B6A0" opacity="0.7"/>
+
+            <!-- Eyes (closed/smiling arcs) -->
+            <path d="M246 313 Q250 309 254 313" stroke="#1B4332" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M266 313 Q270 309 274 313" stroke="#1B4332" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+            <!-- Big smile -->
+            <path d="M246 332 Q260 345 274 332" stroke="#1B4332" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+
+            <!-- Straw hat (drawn after head) -->
+            <!-- Brim -->
+            <ellipse cx="260" cy="288" rx="58" ry="10" fill="#E0A458"/>
+            <ellipse cx="260" cy="287" rx="58" ry="9" fill="#F0B870"/>
+            <!-- Top -->
+            <path d="M232 288 Q236 252 260 250 Q284 252 288 288 Z" fill="#E0A458"/>
+            <!-- Hat highlights -->
+            <path d="M240 285 Q245 260 258 254" stroke="#F0B870" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.7"/>
+            <!-- Hat band -->
+            <path d="M232 282 Q260 274 288 282 L288 290 Q260 282 232 290 Z" fill="#1B4332"/>
+            <!-- Hat band leaf accent -->
+            <path d="M254 282 Q260 276 266 282 Q263 285 260 285 Q257 285 254 282 Z" fill="#52B788"/>
+          </g>
+
+          <!-- A few foreground wheat ears in front of farmer's feet -->
+          <g stroke="#E0A458" stroke-width="2" stroke-linecap="round" fill="none">
+            <path d="M180 495 L182 460"/>
+            <path d="M340 495 L342 460"/>
+          </g>
+          <g fill="#FBBF24">
+            <ellipse cx="182" cy="458" rx="3" ry="9"/>
+            <ellipse cx="342" cy="458" rx="3" ry="9"/>
+          </g>
+        </svg>
+      </div>
+      <div class="float-tag tag-1">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6"/><path d="M12 22a8 8 0 0 0 8-8c0-3-1-5-3-7l-5 5-5-5c-2 2-3 4-3 7a8 8 0 0 0 8 8Z"/></svg></span>
+        <span data-i18n="hero.tag1">Эко-упаковка</span>
+      </div>
+      <div class="float-tag tag-2">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-4.5-7-11a7 7 0 0 1 14 0c0 6.5-7 11-7 11Z"/><circle cx="12" cy="10" r="3"/></svg></span>
+        <span data-i18n="hero.tag2">Поставки в 4 страны</span>
+      </div>
+      <div class="float-tag tag-3">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg></span>
+        <span data-i18n="hero.tag3">Контракты с сетями</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TICKER ===== -->
+<section class="ticker-section" id="partners">
+  <div class="container">
+    <p class="ticker-label" data-i18n="ticker.label">С нами работают</p>
+  </div>
+  <div class="ticker">
+    <div class="ticker-track" id="tickerTrack"></div>
+  </div>
+</section>
+
+<!-- ===== ABOUT / CONSORTIUM ===== -->
+<section class="section consortium" id="about">
+  <div class="container">
+    <div class="section-header">
+      <span class="kicker" data-i18n="about.kicker">О консорциуме</span>
+      <h2 class="h2" data-i18n-html="about.title">Мы — <em>консорциум</em>, а не просто дистрибьютор</h2>
+      <p class="section-sub" data-i18n="about.sub">FMCG Retail объединяет производителей, импортёров и розничные сети под единым контуром закупа, логистики и финансирования. Это даёт сетям — стабильный ассортимент, поставщикам — прогнозируемый сбыт, а конечному покупателю — продукт, который безопасен для здоровья и планеты.</p>
+    </div>
+
+    <div class="pillars">
+      <div class="pillar">
+        <div class="pillar-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+        <h3 data-i18n="about.p1.t">Здоровье и качество</h3>
+        <p data-i18n="about.p1.d">Каждая партия проходит контроль соответствия санитарным нормам РК. Мы работаем только с производителями, у которых есть полный пакет сертификатов.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 7v10l8 5 8-5V7l-8-5z"/><path d="M12 22V12"/><path d="m4 7 8 5 8-5"/></svg></div>
+        <h3 data-i18n="about.p2.t">Экологичность</h3>
+        <p data-i18n="about.p2.d">Приоритет — продукция без избыточной упаковки и с максимально натуральным составом. Это требование к производителям, а не маркетинг.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/></svg></div>
+        <h3 data-i18n="about.p3.t">Финансирование товара</h3>
+        <p data-i18n="about.p3.d">Берём на себя оборотный капитал: импорт, валютные платежи, отсрочку для сетей. Сети получают товар без замораживания собственных средств.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18"/><path d="M5 7v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7"/><path d="M9 7V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3"/></svg></div>
+        <h3 data-i18n="about.p4.t">Логистика 4 стран</h3>
+        <p data-i18n="about.p4.d">Закуп и поставки из Казахстана, России, Узбекистана и Китая. Прямые контракты, валютный контроль, прозрачная цепочка от производителя до полки.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CATEGORIES ===== -->
+<section class="section categories" id="categories">
+  <div class="container">
+    <div class="section-header">
+      <span class="kicker" data-i18n="cat.kicker">Категории</span>
+      <h2 class="h2" data-i18n-html="cat.title">Что мы <em>поставляем</em></h2>
+      <p class="section-sub" data-i18n="cat.sub">Сфокусированный ассортимент быстрооборачиваемых товаров с акцентом на натуральный состав и ответственное производство.</p>
+    </div>
+
+    <div class="cats">
+      <article class="cat">
+        <div class="cat-illu"></div>
+        <span class="cat-num">/ 01</span>
+        <h3 data-i18n-html="cat1.t">Бакалея и&nbsp;продукты питания</h3>
+        <p data-i18n="cat1.d">Крупы, масла, консервация, снеки, напитки. Прямые контракты с производителями РК, РФ, Узбекистана.</p>
+        <span class="cat-tag">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <span data-i18n="cat1.tag">Натуральный состав</span>
+        </span>
+      </article>
+
+      <article class="cat">
+        <div class="cat-illu"></div>
+        <span class="cat-num">/ 02</span>
+        <h3 data-i18n-html="cat2.t">Бытовая химия и&nbsp;гигиена</h3>
+        <p data-i18n="cat2.d">Моющие средства, средства гигиены, упаковка с приоритетом эко-составов и перерабатываемой тары.</p>
+        <span class="cat-tag">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <span data-i18n="cat2.tag">Биоразлагаемые формулы</span>
+        </span>
+      </article>
+
+      <article class="cat">
+        <div class="cat-illu"></div>
+        <span class="cat-num">/ 03</span>
+        <h3 data-i18n-html="cat3.t">Здоровое питание и&nbsp;БАД</h3>
+        <p data-i18n="cat3.d">Суперфуды, орехи и сухофрукты, спортивное питание, функциональные напитки. Категория с растущим спросом.</p>
+        <span class="cat-tag">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <span data-i18n="cat3.tag">Сертификация СТ-РК</span>
+        </span>
+      </article>
+
+      <article class="cat">
+        <div class="cat-illu"></div>
+        <span class="cat-num">/ 04</span>
+        <h3 data-i18n-html="cat4.t">Импорт из&nbsp;Китая</h3>
+        <p data-i18n="cat4.d">Прямые поставки из КНР: непродовольственные категории FMCG, упаковка, сезонный товар. Полный валютный контроль.</p>
+        <span class="cat-tag">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <span data-i18n="cat4.tag">Прямой контракт</span>
+        </span>
+      </article>
+
+      <article class="cat">
+        <div class="cat-illu"></div>
+        <span class="cat-num">/ 05</span>
+        <h3 data-i18n-html="cat5.t">Узбекистан и&nbsp;РФ</h3>
+        <p data-i18n="cat5.d">Свежие плодоовощные товары, консервация, кондитерские изделия. Налажена логистика и таможенное оформление.</p>
+        <span class="cat-tag">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <span data-i18n="cat5.tag">Стабильные поставки</span>
+        </span>
+      </article>
+
+      <article class="cat">
+        <div class="cat-illu"></div>
+        <span class="cat-num">/ 06</span>
+        <h3 data-i18n="cat6.t">Private label</h3>
+        <p data-i18n="cat6.d">Производство и поставка товара под СТМ для розничных сетей. От ТЗ до полки за 60–90 дней.</p>
+        <span class="cat-tag">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <span data-i18n="cat6.tag">Под ваш бренд</span>
+        </span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOR RETAIL ===== -->
+<section class="section retail" id="retail">
+  <div class="container">
+    <div class="retail-grid">
+      <div>
+        <span class="kicker" data-i18n="retail.kicker">Для розничных сетей</span>
+        <h2 class="h2" data-i18n-html="retail.title">Стабильный ассортимент <em>без замороженного</em> оборотного капитала</h2>
+        <p class="section-sub" data-i18n="retail.sub">Мы беспрерывно держим товар на складе и финансируем его сами — сеть получает поставку с отсрочкой и фиксированной ценой. Это особенно ценно при волатильности валют и закрытых лимитах в банках.</p>
+
+        <div class="benefits">
+          <div class="benefit">
+            <div class="b-num">01</div>
+            <div class="b-t" data-i18n="retail.b1.t">Отсрочка платежа</div>
+            <div class="b-d" data-i18n="retail.b1.d">Гибкие условия по отсрочке — подбираем под ваш платёжный цикл и сезонность.</div>
+          </div>
+          <div class="benefit">
+            <div class="b-num">02</div>
+            <div class="b-t" data-i18n="retail.b2.t">Единый поставщик</div>
+            <div class="b-d" data-i18n="retail.b2.d">Один договор, одна точка контакта — закрываем сразу несколько товарных категорий.</div>
+          </div>
+          <div class="benefit">
+            <div class="b-num">03</div>
+            <div class="b-t" data-i18n="retail.b3.t">Прозрачные документы</div>
+            <div class="b-d" data-i18n="retail.b3.d">Полный пакет: ЭСФ, СНТ, сертификаты, декларации соответствия. Без задержек по приёмке.</div>
+          </div>
+          <div class="benefit">
+            <div class="b-num">04</div>
+            <div class="b-t" data-i18n="retail.b4.t">Гарантия качества</div>
+            <div class="b-d" data-i18n="retail.b4.d">Проверка партий до отгрузки. Берём на себя возвраты по браку без споров.</div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="cta-card">
+        <h4 data-i18n="retail.cta.title">Запросить прайс и условия</h4>
+        <p data-i18n="retail.cta.desc">Отправим коммерческое предложение под ваш формат сети в течение одного рабочего дня.</p>
+        <a href="#contacts" class="btn">
+          <span data-i18n="retail.cta.btn">Связаться с коммерческим директором</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+
+        <div class="cta-list">
+          <div class="cta-list-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span data-i18n="retail.list1">Прямые контракты с производителями</span>
+          </div>
+          <div class="cta-list-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span data-i18n="retail.list2">Валютный контроль и импорт под ключ</span>
+          </div>
+          <div class="cta-list-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span data-i18n="retail.list3">Сертифицированный склад в Алматы</span>
+          </div>
+          <div class="cta-list-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span data-i18n="retail.list4">Финансирование оборотки до 60 дней</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTACTS ===== -->
+<section class="section contacts" id="contacts">
+  <div class="container">
+    <div class="section-header">
+      <span class="kicker" data-i18n="contacts.kicker">Контакты</span>
+      <h2 class="h2" data-i18n-html="contacts.title">Поговорим о <em>вашем ассортименте</em></h2>
+    </div>
+
+    <div class="contacts-grid">
+      <div class="contact-card">
+        <div class="person">
+          <div class="avatar">Д</div>
+          <div>
+            <h4 data-i18n="contacts.person_name">Денис</h4>
+            <p data-i18n="contacts.person_role">Коммерческий директор · FMCG Retail</p>
+          </div>
+        </div>
+
+        <a href="https://wa.me/77011456495" target="_blank" rel="noopener" class="contact-row" aria-label="WhatsApp">
+          <span class="ic">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.6 6.32A7.85 7.85 0 0 0 12.05 4c-4.34 0-7.87 3.53-7.87 7.87 0 1.39.36 2.74 1.05 3.94L4.1 20l4.31-1.13c1.16.63 2.46.97 3.78.97h.01c4.34 0 7.87-3.53 7.87-7.87 0-2.1-.82-4.08-2.31-5.57l-.16-.08Zm-5.55 12.1h-.01a6.5 6.5 0 0 1-3.32-.91l-.24-.14-2.56.67.68-2.49-.16-.26a6.55 6.55 0 0 1-1-3.48c0-3.62 2.94-6.56 6.57-6.56 1.75 0 3.4.68 4.64 1.92a6.52 6.52 0 0 1 1.92 4.64c0 3.62-2.94 6.56-6.57 6.56l.05.05Zm3.6-4.92c-.2-.1-1.17-.58-1.35-.64-.18-.07-.31-.1-.45.1s-.51.64-.62.77c-.11.13-.23.15-.43.05-.2-.1-.84-.31-1.6-.99-.59-.53-.99-1.18-1.1-1.38-.11-.2-.01-.31.09-.41.09-.09.2-.23.3-.35.1-.11.13-.2.2-.33.07-.13.03-.25-.02-.35-.05-.1-.45-1.08-.62-1.48-.16-.39-.33-.34-.45-.34l-.39-.01a.74.74 0 0 0-.54.25c-.18.2-.7.69-.7 1.68 0 .99.72 1.95.82 2.08.1.13 1.42 2.16 3.43 3.03.48.21.86.33 1.15.42.48.15.92.13 1.27.08.39-.06 1.17-.48 1.34-.94.16-.46.16-.86.12-.94-.05-.08-.18-.13-.38-.23Z"/></svg>
+          </span>
+          <div class="info">
+            <div class="info-l" data-i18n="contacts.wa_label">WhatsApp · звонок</div>
+            <div class="info-v">+7 701 145 6495</div>
+          </div>
+          <span class="arrow">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+          </span>
+        </a>
+
+        <div class="contact-row" id="emailRow" aria-label="Email" tabindex="0" role="button">
+          <span class="ic">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+          </span>
+          <div class="info">
+            <div class="info-l" data-i18n="contacts.email_label">Email</div>
+            <div class="info-v">retail.group.almaty@gmail.com</div>
+          </div>
+          <span class="arrow">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </span>
+
+          <div class="popover" id="emailPopover" role="menu">
+            <div class="pop-item" data-action="copy" role="menuitem">
+              <span class="pi copy"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg></span>
+              <span data-i18n="email.copy">Скопировать адрес</span>
+            </div>
+            <div class="pop-item" data-action="gmail" role="menuitem">
+              <span class="pi gmail"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M22 5.5v13a1.5 1.5 0 0 1-1.5 1.5H18V8.85l-6 4.5-6-4.5V20H3.5A1.5 1.5 0 0 1 2 18.5v-13A1.5 1.5 0 0 1 3.5 4h.79l7.71 5.78L19.71 4h.79A1.5 1.5 0 0 1 22 5.5Z"/></svg></span>
+              <span data-i18n="email.gmail">Открыть в Gmail</span>
+            </div>
+            <div class="pop-item" data-action="outlook" role="menuitem">
+              <span class="pi outlook"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4Zm15-3.5v3l-3 1.5v-6l3 1.5Zm-9-5.5h7v13h-7v-1h2v-2h-2v-1h2v-2h-2v-1h2V8h-2V7h2V5h-4v15Z"/></svg></span>
+              <span data-i18n="email.outlook">Открыть в Outlook</span>
+            </div>
+            <div class="pop-item" data-action="mail" role="menuitem">
+              <span class="pi mail"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-10 5L2 7"/></svg></span>
+              <span data-i18n="email.mail">Почтовая программа по умолчанию</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="contacts-side">
+        <p class="contacts-quote" data-i18n-html="contacts.quote">«Мы — про <em>длинные отношения</em>: с производителями, сетями и&nbsp;покупателями. И про продукт, который не стыдно поставить на свою полку».</p>
+        <div class="contacts-meta" data-i18n="contacts.meta">Офис в Алматы. Работаем с сетями и оптовыми клиентами по всему Казахстану и в Узбекистане. Запросы по импорту и&nbsp;частной марке — напрямую коммерческому директору.</div>
+        <div class="geo-tags">
+          <span class="geo-tag" data-i18n="geo.kz">Казахстан</span>
+          <span class="geo-tag" data-i18n="geo.uz">Узбекистан</span>
+          <span class="geo-tag" data-i18n="geo.ru">Россия</span>
+          <span class="geo-tag" data-i18n="geo.cn">Китай</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="brand">
+          <img src="assets/logo.jpeg" alt="FMCG Retail" class="brand-logo" />
+          <span class="brand-text">FMCG Retail<small data-i18n="brand.tagline">Торговый консорциум</small></span>
+        </div>
+        <p data-i18n="footer.desc">Объединяем проверенных производителей и крупнейшие розничные сети Центральной Азии. Здоровье, качество, ответственность.</p>
+      </div>
+
+      <div>
+        <h5 data-i18n="footer.h_sections">Разделы</h5>
+        <ul>
+          <li><a href="#about" data-i18n="nav.about">О консорциуме</a></li>
+          <li><a href="#categories" data-i18n="nav.categories">Категории</a></li>
+          <li><a href="#partners" data-i18n="nav.partners">Партнёры</a></li>
+          <li><a href="#retail" data-i18n="nav.retail">Сетям</a></li>
+          <li><a href="#contacts" data-i18n="nav.contacts">Контакты</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h5 data-i18n="footer.h_contacts">Контакты</h5>
+        <ul>
+          <li><a href="https://wa.me/77011456495" target="_blank" rel="noopener">+7 701 145 6495 · WhatsApp</a></li>
+          <li><a href="mailto:retail.group.almaty@gmail.com">retail.group.almaty@gmail.com</a></li>
+          <li><a href="https://fmcgretail.kz">fmcgretail.kz</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h5 data-i18n="footer.h_requisites">Реквизиты</h5>
+        <div class="requisites">
+          <div><strong data-i18n="req.company">Компания:</strong> <span data-i18n="req.company_v">ТОО «FMCG RETAIL»</span></div>
+          <div><strong data-i18n="req.bin">БИН:</strong> <span class="mono">251240003044</span></div>
+          <div><strong data-i18n="req.address">Адрес:</strong> <span data-i18n="req.address_v">Республика Казахстан, г. Алматы, Бостандыкский район, бульвар Бухар Жырау, 27/5, 259, 050021</span></div>
+          <div><strong data-i18n="req.bank">Банк:</strong> <span data-i18n="req.bank_v">АО «Банк ЦентрКредит»</span></div>
+          <div><strong data-i18n="req.bic">БИК:</strong> <span class="mono">KCJBKZKX</span></div>
+          <div><strong data-i18n="req.acc_kzt">Счёт (KZT):</strong> <span class="mono">KZ818562203150888710</span></div>
+          <div><strong data-i18n="req.acc_usd">Счёт (USD):</strong> <span class="mono">KZ608562203250888910</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div data-i18n-html="footer.copyright">© <span id="year">2026</span> ТОО «FMCG Retail». Все права защищены.</div>
+      <div class="legal">
+        <a href="#" data-i18n="footer.privacy">Политика конфиденциальности</a>
+        <a href="#" data-i18n="footer.offer">Публичная оферта</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast">Email скопирован</div>
+
+<script>
+// ===== TRANSLATIONS =====
+const T = {
+  ru: {
+    'brand.tagline':'Торговый консорциум',
+    'nav.about':'О консорциуме','nav.categories':'Категории','nav.partners':'Партнёры','nav.retail':'Сетям','nav.contacts':'Контакты',
+    'nav.cta_text':'Связаться',
+    'hero.eyebrow':'Торговый консорциум · Алматы, Казахстан',
+    'hero.title':'Продукты, которым доверяют <em>сети и семьи</em> Центральной Азии',
+    'hero.lead':'FMCG Retail — торговый консорциум, объединяющий проверенных производителей и крупнейшие розничные сети. Мы делаем ставку на здоровье потребителя и экологичную упаковку — и берём на себя всю логистику, импорт и финансирование товара.',
+    'hero.cta1':'Стать нашим клиентом','hero.cta2':'О консорциуме',
+    'hero.stat1_v':'7+','hero.stat1_l':'розничных сетей-партнёров',
+    'hero.stat2_v':'4','hero.stat2_l':'страны поставок',
+    'hero.stat3_v':'100%','hero.stat3_l':'контроль качества',
+    'hero.tag1':'Эко-упаковка','hero.tag2':'Поставки в 4 страны','hero.tag3':'Контракты с сетями',
+    'ticker.label':'С нами работают',
+    'about.kicker':'О консорциуме',
+    'about.title':'Мы — <em>консорциум</em>, а не просто дистрибьютор',
+    'about.sub':'FMCG Retail объединяет производителей, импортёров и розничные сети под единым контуром закупа, логистики и финансирования. Это даёт сетям — стабильный ассортимент, поставщикам — прогнозируемый сбыт, а конечному покупателю — продукт, который безопасен для здоровья и планеты.',
+    'about.p1.t':'Здоровье и качество',
+    'about.p1.d':'Каждая партия проходит контроль соответствия санитарным нормам РК. Мы работаем только с производителями, у которых есть полный пакет сертификатов.',
+    'about.p2.t':'Экологичность',
+    'about.p2.d':'Приоритет — продукция без избыточной упаковки и с максимально натуральным составом. Это требование к производителям, а не маркетинг.',
+    'about.p3.t':'Финансирование товара',
+    'about.p3.d':'Берём на себя оборотный капитал: импорт, валютные платежи, отсрочку для сетей. Сети получают товар без замораживания собственных средств.',
+    'about.p4.t':'Логистика 4 стран',
+    'about.p4.d':'Закуп и поставки из Казахстана, России, Узбекистана и Китая. Прямые контракты, валютный контроль, прозрачная цепочка от производителя до полки.',
+    'cat.kicker':'Категории',
+    'cat.title':'Что мы <em>поставляем</em>',
+    'cat.sub':'Сфокусированный ассортимент быстрооборачиваемых товаров с акцентом на натуральный состав и ответственное производство.',
+    'cat1.t':'Бакалея и&nbsp;продукты питания','cat1.d':'Крупы, масла, консервация, снеки, напитки. Прямые контракты с производителями РК, РФ, Узбекистана.','cat1.tag':'Натуральный состав',
+    'cat2.t':'Бытовая химия и&nbsp;гигиена','cat2.d':'Моющие средства, средства гигиены, упаковка с приоритетом эко-составов и перерабатываемой тары.','cat2.tag':'Биоразлагаемые формулы',
+    'cat3.t':'Здоровое питание и&nbsp;БАД','cat3.d':'Суперфуды, орехи и сухофрукты, спортивное питание, функциональные напитки. Категория с растущим спросом.','cat3.tag':'Сертификация СТ-РК',
+    'cat4.t':'Импорт из&nbsp;Китая','cat4.d':'Прямые поставки из КНР: непродовольственные категории FMCG, упаковка, сезонный товар. Полный валютный контроль.','cat4.tag':'Прямой контракт',
+    'cat5.t':'Узбекистан и&nbsp;РФ','cat5.d':'Свежие плодоовощные товары, консервация, кондитерские изделия. Налажена логистика и таможенное оформление.','cat5.tag':'Стабильные поставки',
+    'cat6.t':'Private label','cat6.d':'Производство и поставка товара под СТМ для розничных сетей. От ТЗ до полки за 60–90 дней.','cat6.tag':'Под ваш бренд',
+    'retail.kicker':'Для розничных сетей',
+    'retail.title':'Стабильный ассортимент <em>без замороженного</em> оборотного капитала',
+    'retail.sub':'Мы беспрерывно держим товар на складе и финансируем его сами — сеть получает поставку с отсрочкой и фиксированной ценой. Это особенно ценно при волатильности валют и закрытых лимитах в банках.',
+    'retail.b1.t':'Отсрочка платежа','retail.b1.d':'Гибкие условия по отсрочке — подбираем под ваш платёжный цикл и сезонность.',
+    'retail.b2.t':'Единый поставщик','retail.b2.d':'Один договор, одна точка контакта — закрываем сразу несколько товарных категорий.',
+    'retail.b3.t':'Прозрачные документы','retail.b3.d':'Полный пакет: ЭСФ, СНТ, сертификаты, декларации соответствия. Без задержек по приёмке.',
+    'retail.b4.t':'Гарантия качества','retail.b4.d':'Проверка партий до отгрузки. Берём на себя возвраты по браку без споров.',
+    'retail.cta.title':'Запросить прайс и условия',
+    'retail.cta.desc':'Отправим коммерческое предложение под ваш формат сети в течение одного рабочего дня.',
+    'retail.cta.btn':'Связаться с коммерческим директором',
+    'retail.list1':'Прямые контракты с производителями',
+    'retail.list2':'Валютный контроль и импорт под ключ',
+    'retail.list3':'Сертифицированный склад в Алматы',
+    'retail.list4':'Финансирование оборотки до 60 дней',
+    'contacts.kicker':'Контакты',
+    'contacts.title':'Поговорим о <em>вашем ассортименте</em>',
+    'contacts.person_name':'Денис','contacts.person_role':'Коммерческий директор · FMCG Retail',
+    'contacts.wa_label':'WhatsApp · звонок','contacts.email_label':'Email',
+    'contacts.quote':'«Мы — про <em>длинные отношения</em>: с производителями, сетями и&nbsp;покупателями. И про продукт, который не стыдно поставить на свою полку».',
+    'contacts.meta':'Офис в Алматы. Работаем с сетями и оптовыми клиентами по всему Казахстану и в Узбекистане. Запросы по импорту и&nbsp;частной марке — напрямую коммерческому директору.',
+    'geo.kz':'Казахстан','geo.uz':'Узбекистан','geo.ru':'Россия','geo.cn':'Китай',
+    'email.copy':'Скопировать адрес','email.gmail':'Открыть в Gmail','email.outlook':'Открыть в Outlook','email.mail':'Почтовая программа по умолчанию',
+    'toast.copied':'Email скопирован',
+    'footer.desc':'Объединяем проверенных производителей и крупнейшие розничные сети Центральной Азии. Здоровье, качество, ответственность.',
+    'footer.h_sections':'Разделы','footer.h_contacts':'Контакты','footer.h_requisites':'Реквизиты',
+    'req.company':'Компания:','req.company_v':'ТОО «FMCG RETAIL»',
+    'req.bin':'БИН:',
+    'req.address':'Адрес:','req.address_v':'Республика Казахстан, г. Алматы, Бостандыкский район, бульвар Бухар Жырау, 27/5, 259, 050021',
+    'req.bank':'Банк:','req.bank_v':'АО «Банк ЦентрКредит»',
+    'req.bic':'БИК:','req.acc_kzt':'Счёт (KZT):','req.acc_usd':'Счёт (USD):',
+    'footer.copyright':'© <span id="year">2026</span> ТОО «FMCG Retail». Все права защищены.',
+    'footer.privacy':'Политика конфиденциальности','footer.offer':'Публичная оферта',
+  },
+
+  en: {
+    'brand.tagline':'Trading consortium',
+    'nav.about':'About','nav.categories':'Categories','nav.partners':'Partners','nav.retail':'For retailers','nav.contacts':'Contacts',
+    'nav.cta_text':'Get in touch',
+    'hero.eyebrow':'Trading consortium · Almaty, Kazakhstan',
+    'hero.title':'Products trusted by <em>retail chains and families</em> across Central Asia',
+    'hero.lead':'FMCG Retail is a trading consortium uniting proven manufacturers and the largest retail chains. We focus on consumer health and eco-friendly packaging — and we take on all the logistics, imports and inventory financing.',
+    'hero.cta1':'Become our client','hero.cta2':'About the consortium',
+    'hero.stat1_v':'7+','hero.stat1_l':'retail chain partners',
+    'hero.stat2_v':'4','hero.stat2_l':'countries of supply',
+    'hero.stat3_v':'100%','hero.stat3_l':'quality control',
+    'hero.tag1':'Eco packaging','hero.tag2':'Supply to 4 countries','hero.tag3':'Contracts with chains',
+    'ticker.label':'We work with',
+    'about.kicker':'About',
+    'about.title':'A <em>consortium</em>, not just a distributor',
+    'about.sub':'FMCG Retail unites manufacturers, importers and retail chains under a single procurement, logistics and financing layer. Retailers get a stable assortment; suppliers get predictable sales; the end consumer gets a product that is safe for health and the planet.',
+    'about.p1.t':'Health and quality',
+    'about.p1.d':'Every batch passes Kazakhstan sanitary compliance. We work only with manufacturers holding the full set of certifications.',
+    'about.p2.t':'Sustainability',
+    'about.p2.d':'Priority on products with no excessive packaging and the most natural composition possible. This is a requirement to manufacturers, not marketing.',
+    'about.p3.t':'Inventory financing',
+    'about.p3.d':'We carry the working capital: imports, FX payments, deferred terms for chains. Retailers get goods without freezing their own funds.',
+    'about.p4.t':'Logistics across 4 countries',
+    'about.p4.d':'Procurement and supply from Kazakhstan, Russia, Uzbekistan and China. Direct contracts, FX control, transparent chain from factory to shelf.',
+    'cat.kicker':'Categories',
+    'cat.title':'What we <em>supply</em>',
+    'cat.sub':'A focused range of fast-moving consumer goods with an emphasis on natural composition and responsible production.',
+    'cat1.t':'Grocery and food','cat1.d':'Grains, oils, canned goods, snacks, beverages. Direct contracts with manufacturers in Kazakhstan, Russia and Uzbekistan.','cat1.tag':'Natural composition',
+    'cat2.t':'Household chemicals and hygiene','cat2.d':'Detergents, hygiene products, packaging — priority on eco formulas and recyclable containers.','cat2.tag':'Biodegradable formulas',
+    'cat3.t':'Healthy food and supplements','cat3.d':'Superfoods, nuts and dried fruits, sports nutrition, functional beverages. A category with growing demand.','cat3.tag':'ST-RK certified',
+    'cat4.t':'Imports from China','cat4.d':'Direct supply from China: non-food FMCG categories, packaging, seasonal goods. Full FX control.','cat4.tag':'Direct contract',
+    'cat5.t':'Uzbekistan and Russia','cat5.d':'Fresh fruits and vegetables, canned goods, confectionery. Logistics and customs clearance in place.','cat5.tag':'Stable supply',
+    'cat6.t':'Private label','cat6.d':'Production and supply of private-label goods for retail chains. From spec to shelf in 60–90 days.','cat6.tag':'Under your brand',
+    'retail.kicker':'For retail chains',
+    'retail.title':'Stable assortment <em>without freezing</em> your working capital',
+    'retail.sub':'We continuously hold inventory and finance it ourselves — the chain receives delivery on credit at a fixed price. This is especially valuable amid FX volatility and tight bank limits.',
+    'retail.b1.t':'Deferred payment','retail.b1.d':'Flexible deferred-payment terms tailored to your payment cycle and seasonality.',
+    'retail.b2.t':'Single supplier','retail.b2.d':'One contract, one point of contact — covering several product categories at once.',
+    'retail.b3.t':'Transparent paperwork','retail.b3.d':'Full set: ESF, SNT, certificates, declarations of conformity. No delays at acceptance.',
+    'retail.b4.t':'Quality guarantee','retail.b4.d':'Pre-shipment batch inspection. We take on returns of defects without disputes.',
+    'retail.cta.title':'Request pricing and terms',
+    'retail.cta.desc':'We will send a commercial proposal tailored to your retail format within one business day.',
+    'retail.cta.btn':'Contact the commercial director',
+    'retail.list1':'Direct contracts with manufacturers',
+    'retail.list2':'Turnkey FX control and imports',
+    'retail.list3':'Certified warehouse in Almaty',
+    'retail.list4':'Working capital financing up to 60 days',
+    'contacts.kicker':'Contacts',
+    'contacts.title':'Let’s talk about <em>your assortment</em>',
+    'contacts.person_name':'Denis','contacts.person_role':'Commercial Director · FMCG Retail',
+    'contacts.wa_label':'WhatsApp · call','contacts.email_label':'Email',
+    'contacts.quote':'“We’re about <em>long relationships</em>: with manufacturers, chains and customers. And about products you’re not ashamed to put on your shelf.”',
+    'contacts.meta':'Office in Almaty. We work with chains and wholesale clients across Kazakhstan and in Uzbekistan. Import and private-label inquiries — directly to the commercial director.',
+    'geo.kz':'Kazakhstan','geo.uz':'Uzbekistan','geo.ru':'Russia','geo.cn':'China',
+    'email.copy':'Copy address','email.gmail':'Open in Gmail','email.outlook':'Open in Outlook','email.mail':'Default mail app',
+    'toast.copied':'Email copied',
+    'footer.desc':'We unite proven manufacturers and the largest retail chains of Central Asia. Health, quality, responsibility.',
+    'footer.h_sections':'Sections','footer.h_contacts':'Contacts','footer.h_requisites':'Company details',
+    'req.company':'Company:','req.company_v':'FMCG RETAIL LLP',
+    'req.bin':'BIN:',
+    'req.address':'Address:','req.address_v':'Republic of Kazakhstan, Almaty, Bostandyk district, Bukhar Zhyrau Boulevard, 27/5, 259, 050021',
+    'req.bank':'Bank:','req.bank_v':'Bank CenterCredit JSC',
+    'req.bic':'BIC:','req.acc_kzt':'Account (KZT):','req.acc_usd':'Account (USD):',
+    'footer.copyright':'© <span id="year">2026</span> FMCG Retail LLP. All rights reserved.',
+    'footer.privacy':'Privacy policy','footer.offer':'Public offer',
+  },
+
+  kz: {
+    'brand.tagline':'Сауда консорциумы',
+    'nav.about':'Консорциум','nav.categories':'Санаттар','nav.partners':'Серіктестер','nav.retail':'Желілерге','nav.contacts':'Байланыс',
+    'nav.cta_text':'Хабарласу',
+    'hero.eyebrow':'Сауда консорциумы · Алматы, Қазақстан',
+    'hero.title':'Орталық Азияның <em>желілері мен отбасылары</em> сенетін өнімдер',
+    'hero.lead':'FMCG Retail — сенімді өндірушілер мен ірі бөлшек желілерді біріктіретін сауда консорциумы. Біз тұтынушы денсаулығы мен экологиялық қаптамаға баса назар аударамыз — және барлық логистика, импорт пен тауарды қаржыландыруды өзімізге аламыз.',
+    'hero.cta1':'Біздің клиент болу','hero.cta2':'Консорциум туралы',
+    'hero.stat1_v':'7+','hero.stat1_l':'серіктес желі',
+    'hero.stat2_v':'4','hero.stat2_l':'жеткізу елі',
+    'hero.stat3_v':'100%','hero.stat3_l':'сапа бақылауы',
+    'hero.tag1':'Эко-қаптама','hero.tag2':'4 елге жеткізу','hero.tag3':'Желілермен келісімдер',
+    'ticker.label':'Бізбен жұмыс істейді',
+    'about.kicker':'Консорциум туралы',
+    'about.title':'Біз — дистрибьютор ғана емес, <em>консорциуммыз</em>',
+    'about.sub':'FMCG Retail өндірушілерді, импортшыларды және бөлшек желілерді бірыңғай сатып алу, логистика мен қаржыландыру контурында біріктіреді. Бұл желілерге тұрақты ассортимент, жеткізушілерге болжамды өткізу, ал түпкі сатып алушыға денсаулық пен планета үшін қауіпсіз өнім береді.',
+    'about.p1.t':'Денсаулық пен сапа',
+    'about.p1.d':'Әр партия ҚР санитарлық нормаларына сәйкестік бақылауынан өтеді. Біз тек толық сертификаттар пакеті бар өндірушілермен жұмыс істейміз.',
+    'about.p2.t':'Экологиялық тазалық',
+    'about.p2.d':'Басымдық — артық қаптамасыз, барынша табиғи құрамды өнімдер. Бұл өндірушілерге қойылатын талап, маркетинг емес.',
+    'about.p3.t':'Тауарды қаржыландыру',
+    'about.p3.d':'Айналым капиталын өзімізге аламыз: импорт, валюталық төлемдер, желілерге кейінге қалдыру. Желілер өз қаражатын қатырмай тауар алады.',
+    'about.p4.t':'4 ел логистикасы',
+    'about.p4.d':'Қазақстан, Ресей, Өзбекстан және Қытайдан сатып алу мен жеткізу. Тікелей келісімдер, валюталық бақылау, өндірушіден сөреге дейінгі ашық тізбек.',
+    'cat.kicker':'Санаттар',
+    'cat.title':'Біз нені <em>жеткіземіз</em>',
+    'cat.sub':'Табиғи құрам мен жауапты өндіріске баса назар аударылған тез айналымды тауарлардың шоғырланған ассортименті.',
+    'cat1.t':'Бакалея және азық-түлік','cat1.d':'Жармалар, майлар, консерві, снектер, сусындар. ҚР, РФ, Өзбекстан өндірушілерімен тікелей келісімдер.','cat1.tag':'Табиғи құрам',
+    'cat2.t':'Тұрмыстық химия және гигиена','cat2.d':'Жуғыш құралдар, гигиена құралдары, эко-құрамдар мен қайта өңделетін ыдысқа басымдықпен қаптама.','cat2.tag':'Биыдырайтын формулалар',
+    'cat3.t':'Дұрыс тамақтану және БАҚ','cat3.d':'Суперфудтар, жаңғақтар мен кептірілген жемістер, спорттық тамақтану, функционалды сусындар. Сұранысы өсіп келе жатқан санат.','cat3.tag':'СТ-РК сертификаты',
+    'cat4.t':'Қытайдан импорт','cat4.d':'ҚХР-дан тікелей жеткізу: азық-түлік емес FMCG санаттары, қаптама, маусымдық тауар. Толық валюталық бақылау.','cat4.tag':'Тікелей келісім',
+    'cat5.t':'Өзбекстан және РФ','cat5.d':'Жаңа жеміс-көкөністер, консерві, кондитерлік өнімдер. Логистика мен кедендік рәсімдеу жолға қойылған.','cat5.tag':'Тұрақты жеткізу',
+    'cat6.t':'Жеке сауда маркасы','cat6.d':'Бөлшек желілер үшін СТМ бойынша тауар өндіру және жеткізу. ТЖ-дан сөреге дейін 60–90 күнде.','cat6.tag':'Сіздің бренд астында',
+    'retail.kicker':'Бөлшек желілерге',
+    'retail.title':'Айналым капиталын <em>қатырмай</em>, тұрақты ассортимент',
+    'retail.sub':'Біз тауарды үздіксіз қоймада ұстаймыз және оны өзіміз қаржыландырамыз — желі жеткізуді кейінге қалдырумен және тіркелген бағамен алады. Бұл валюта құбылмалылығы мен банктердегі жабық лимиттер кезінде ерекше құнды.',
+    'retail.b1.t':'Төлемді кейінге қалдыру','retail.b1.d':'Иілгіш кейінге қалдыру шарттары — сіздің төлем циклі мен маусымдылыққа сәйкес.',
+    'retail.b2.t':'Бірыңғай жеткізуші','retail.b2.d':'Бір келісім, бір байланыс нүктесі — бірден бірнеше тауар санатын жабамыз.',
+    'retail.b3.t':'Ашық құжаттар','retail.b3.d':'Толық пакет: ЭСФ, СНТ, сертификаттар, сәйкестік декларациялары. Қабылдау кезінде кідіріс жоқ.',
+    'retail.b4.t':'Сапа кепілдігі','retail.b4.d':'Жөнелту алдында партияларды тексеру. Жарамсыз тауарларды дауссыз қайтарымға аламыз.',
+    'retail.cta.title':'Прайс пен шарттарды сұрау',
+    'retail.cta.desc':'Сіздің желі форматыңызға арналған коммерциялық ұсынысты бір жұмыс күні ішінде жібереміз.',
+    'retail.cta.btn':'Коммерциялық директормен байланысу',
+    'retail.list1':'Өндірушілермен тікелей келісімдер',
+    'retail.list2':'Кілтпен валюталық бақылау және импорт',
+    'retail.list3':'Алматыдағы сертификатталған қойма',
+    'retail.list4':'Айналым қаржыландыруы 60 күнге дейін',
+    'contacts.kicker':'Байланыс',
+    'contacts.title':'Сіздің <em>ассортимент туралы</em> сөйлесейік',
+    'contacts.person_name':'Денис','contacts.person_role':'Коммерциялық директор · FMCG Retail',
+    'contacts.wa_label':'WhatsApp · қоңырау','contacts.email_label':'Email',
+    'contacts.quote':'«Біз — <em>ұзақ қарым-қатынас</em> үшін: өндірушілермен, желілермен және сатып алушылармен. Және өз сөреңізге қоюдан ұялмайтын өнім үшін».',
+    'contacts.meta':'Алматыдағы кеңсе. Бүкіл Қазақстан мен Өзбекстан желілерімен және көтерме клиенттерімен жұмыс істейміз. Импорт пен жеке сауда маркасы бойынша сұраулар — тікелей коммерциялық директорға.',
+    'geo.kz':'Қазақстан','geo.uz':'Өзбекстан','geo.ru':'Ресей','geo.cn':'Қытай',
+    'email.copy':'Мекенжайды көшіру','email.gmail':'Gmail-да ашу','email.outlook':'Outlook-та ашу','email.mail':'Әдепкі пошта бағдарламасы',
+    'toast.copied':'Email көшірілді',
+    'footer.desc':'Орталық Азияның сенімді өндірушілері мен ірі бөлшек желілерін біріктіреміз. Денсаулық, сапа, жауапкершілік.',
+    'footer.h_sections':'Бөлімдер','footer.h_contacts':'Байланыс','footer.h_requisites':'Деректемелер',
+    'req.company':'Компания:','req.company_v':'«FMCG RETAIL» ЖШС',
+    'req.bin':'БСН:',
+    'req.address':'Мекенжайы:','req.address_v':'Қазақстан Республикасы, Алматы қ., Бостандық ауданы, Бұхар Жырау бульвары, 27/5, 259, 050021',
+    'req.bank':'Банк:','req.bank_v':'«Банк ЦентрКредит» АҚ',
+    'req.bic':'БСК:','req.acc_kzt':'Шот (KZT):','req.acc_usd':'Шот (USD):',
+    'footer.copyright':'© <span id="year">2026</span> «FMCG Retail» ЖШС. Барлық құқықтар қорғалған.',
+    'footer.privacy':'Құпиялылық саясаты','footer.offer':'Жария оферта',
+  }
+};
+
+// ===== Apply language =====
+function applyLang(lang){
+  if(!T[lang]) lang = 'ru';
+  const dict = T[lang];
+  document.documentElement.lang = lang === 'kz' ? 'kk' : lang;
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key] !== undefined) el.textContent = dict[key];
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const key = el.getAttribute('data-i18n-html');
+    if (dict[key] !== undefined) el.innerHTML = dict[key];
+  });
+
+  // year
+  const y = document.getElementById('year');
+  if (y) y.textContent = new Date().getFullYear();
+
+  // active button
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+
+  try { localStorage.setItem('fmcg_lang', lang); } catch(e){}
+}
+
+document.querySelectorAll('.lang-btn').forEach(b => {
+  b.addEventListener('click', () => applyLang(b.dataset.lang));
+});
+
+// Initial language: localStorage > browser > ru
+let savedLang = 'ru';
+try { savedLang = localStorage.getItem('fmcg_lang') || ''; } catch(e){}
+if (!savedLang) {
+  const nav = (navigator.language || 'ru').toLowerCase();
+  if (nav.startsWith('en')) savedLang = 'en';
+  else if (nav.startsWith('kk') || nav.startsWith('kz')) savedLang = 'kz';
+  else savedLang = 'ru';
+}
+applyLang(savedLang);
+
+// ===== Partner ticker (monochrome stylized text logos) =====
+const partners = [
+  { name:'Magnum',          mark:'square' },
+  { name:'Galmart',         mark:'circle' },
+  { name:'Small',           mark:'wave' },
+  { name:'Anvar',           mark:'leaf' },
+  { name:'Korzinka',        mark:'basket', sub:'UZ' },
+  { name:'Toimart',         mark:'plus' },
+  { name:'MultiSheff Supply', mark:'chef' },
+];
+function markSVG(type){
+  const c = '#1B4332';
+  const svgs = {
+    square:`<svg viewBox="0 0 32 32" width="30" height="30"><rect x="4" y="4" width="24" height="24" rx="6" fill="${c}"/><rect x="11" y="11" width="10" height="10" rx="2" fill="#fff"/></svg>`,
+    circle:`<svg viewBox="0 0 32 32" width="30" height="30"><circle cx="16" cy="16" r="13" fill="none" stroke="${c}" stroke-width="3"/><circle cx="16" cy="16" r="5" fill="${c}"/></svg>`,
+    wave:`<svg viewBox="0 0 32 32" width="30" height="30"><path d="M3 16c4-7 8-7 13 0s9 7 13 0" stroke="${c}" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`,
+    leaf:`<svg viewBox="0 0 32 32" width="30" height="30"><path d="M6 26C6 14 14 6 26 6c0 12-8 20-20 20Z" fill="${c}"/><path d="M9 23 22 10" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>`,
+    basket:`<svg viewBox="0 0 32 32" width="30" height="30"><path d="M5 12h22l-2 14H7L5 12Z" fill="none" stroke="${c}" stroke-width="2.5" stroke-linejoin="round"/><path d="M11 12 16 4l5 8" fill="none" stroke="${c}" stroke-width="2.5" stroke-linejoin="round"/></svg>`,
+    plus:`<svg viewBox="0 0 32 32" width="30" height="30"><circle cx="16" cy="16" r="13" fill="${c}"/><path d="M16 9v14M9 16h14" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>`,
+    chef:`<svg viewBox="0 0 32 32" width="30" height="30"><path d="M9 16c-3 0-5-2-5-5s2-5 5-5c1-2 3-3 5-3 3 0 5 2 6 4 1-1 3-1 4 0 2 0 4 2 4 4s-2 4-4 4H9Z" fill="${c}"/><path d="M9 17v6c0 2 2 3 4 3h6c2 0 4-1 4-3v-6" fill="#fff" stroke="${c}" stroke-width="2"/></svg>`,
+  };
+  return svgs[type] || svgs.square;
+}
+(function renderTicker(){
+  const track = document.getElementById('tickerTrack');
+  const html = partners.map(p => `
+    <div class="logo" title="${p.name}${p.sub?' · '+p.sub:''}">
+      <span class="logo-text">
+        <span class="logo-mark">${markSVG(p.mark)}</span>
+        ${p.name}${p.sub?` <small style="font-size:13px;font-weight:500;opacity:0.6;margin-left:2px">· ${p.sub}</small>`:''}
+      </span>
+    </div>
+  `).join('');
+  track.innerHTML = html + html;
+})();
+
+// ===== Email popover =====
+const emailRow = document.getElementById('emailRow');
+const emailPopover = document.getElementById('emailPopover');
+const EMAIL = 'retail.group.almaty@gmail.com';
+const SUBJECT = 'Запрос по сотрудничеству — FMCG Retail';
+
+function openPop(){ emailPopover.classList.add('open'); }
+function closePop(){ emailPopover.classList.remove('open'); }
+
+emailRow.addEventListener('click', (e) => {
+  e.stopPropagation();
+  emailPopover.classList.toggle('open');
+});
+emailRow.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPop(); }
+  if (e.key === 'Escape') closePop();
+});
+document.addEventListener('click', (e) => {
+  if (!emailRow.contains(e.target)) closePop();
+});
+
+const toast = document.getElementById('toast');
+function showToast(){
+  const lang = document.documentElement.lang === 'kk' ? 'kz' : (document.documentElement.lang || 'ru');
+  toast.textContent = (T[lang] && T[lang]['toast.copied']) || 'Email copied';
+  toast.classList.add('show');
+  setTimeout(()=> toast.classList.remove('show'), 1800);
+}
+
+emailPopover.addEventListener('click', (e) => {
+  const item = e.target.closest('.pop-item');
+  if (!item) return;
+  e.stopPropagation();
+  const action = item.dataset.action;
+  if (action === 'copy') {
+    navigator.clipboard.writeText(EMAIL).then(showToast).catch(()=>{
+      const ta = document.createElement('textarea'); ta.value = EMAIL; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); showToast();
+    });
+  } else if (action === 'gmail') {
+    window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${EMAIL}&su=${encodeURIComponent(SUBJECT)}`, '_blank', 'noopener');
+  } else if (action === 'outlook') {
+    window.open(`https://outlook.office.com/mail/deeplink/compose?to=${EMAIL}&subject=${encodeURIComponent(SUBJECT)}`, '_blank', 'noopener');
+  } else if (action === 'mail') {
+    window.location.href = `mailto:${EMAIL}?subject=${encodeURIComponent(SUBJECT)}`;
+  }
+  closePop();
+});
+</script>
+
+</body>
+</html>
