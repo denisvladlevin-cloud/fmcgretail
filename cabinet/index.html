@@ -149,7 +149,9 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
 .ctype{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
 .ctype.buy{background:var(--warn-soft);color:var(--warn)} .ctype.sell{background:var(--accent-soft);color:var(--accent)}
 
+@media (max-width:900px){ #dashSparks{grid-template-columns:1fr!important} }
 @media (max-width:700px){
+  #dashTiles{grid-template-columns:repeat(2,1fr)!important}
   .top .in{padding:8px 10px;gap:8px}
   h1{font-size:15px}
   .brand{gap:6px}
@@ -191,6 +193,7 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
   <div class="brand"><span class="mark">FMCG Retail</span><h1>Калькулятор отпускной цены</h1></div>
   <div class="tabs" role="tablist">
     <button role="tab" aria-selected="true" data-tab="calc">Расчёт</button>
+    <button role="tab" aria-selected="false" data-tab="dash">Дашборд 1С</button>
     <button role="tab" aria-selected="false" data-tab="journal">Журнал КП <span id="jcount" class="badge">0</span></button>
     <button role="tab" aria-selected="false" data-tab="contracts">Договора <span id="ccount" class="badge">0</span></button>
     <button role="tab" aria-selected="false" data-tab="settings">Настройки</button>
@@ -343,6 +346,28 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
   </div>
 </aside>
 </div>
+</section>
+
+<!-- ================= DASHBOARD 1C ================= -->
+<section class="page" id="page-dash">
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <div><h2 style="margin-bottom:2px">Финансы из 1С</h2><span class="hint" id="dashWhen">срезов пока нет</span></div>
+      <div class="row">
+        <button class="btn primary" id="btnSync1c">Обновить из 1С</button>
+        <button class="btn small" id="btnTest1c">Диагностика</button>
+      </div>
+    </div>
+    <p class="hint" id="dashEmpty" style="margin:10px 0 0">Нажмите «Обновить из 1С» — кабинет заберёт остатки по счетам (деньги, дебиторка, авансы, кредиторка, ТМЦ, займы) и сохранит срез. История срезов копится, и на дашборде появится динамика. Если что-то не так — «Диагностика» покажет, на каком шаге затык.</p>
+    <pre id="dashDiag" hidden style="margin:10px 0 0;padding:10px;background:var(--panel2);border-radius:8px;font-size:11.5px;white-space:pre-wrap;max-height:260px;overflow:auto"></pre>
+  </div>
+  <div id="dashBody" hidden>
+    <div class="card">
+      <div class="tiles" id="dashTiles" style="grid-template-columns:repeat(4,1fr)"></div>
+      <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px;margin-top:14px" id="dashSparks"></div>
+    </div>
+    <div class="grid g3" style="margin-top:14px;align-items:start" id="dashTables"></div>
+  </div>
 </section>
 
 <!-- ================= JOURNAL ================= -->
@@ -866,7 +891,88 @@ document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
   if(b.dataset.tab==='journal'){ renderJournal(); loadCloud(true).then(()=>renderJournal()); }
   if(b.dataset.tab==='contracts'){ renderContracts(); loadCloud(true).then(()=>{renderContracts();renderContractPick();}); }
   if(b.dataset.tab==='settings') fillSettings();
+  if(b.dataset.tab==='dash'){ renderDash(); loadSnapshots().then(renderDash); }
 });
+
+/* ============ дашборд 1С ============ */
+let snapshots = [];
+async function loadSnapshots(){
+  if(!sb||!sessionUser) return;
+  try{
+    const {data,error} = await sb.from('fin_snapshots').select('id,taken_at,data,created_by').order('taken_at',{ascending:false}).limit(60);
+    if(error) throw error;
+    snapshots = data||[];
+  }catch(e){ /* таблицы может ещё не быть */ }
+}
+const DASH_TILES = [
+  ['ar','Долги покупателей','warn'],['advOut','Авансы поставщикам',''],['ap','Мы должны поставщикам',''],['loans','Займы и кредиты',''],
+  ['cash','Деньги','good'],['inventory','Товар и запасы',''],['advIn','Авансы от покупателей',''],['net','Чистая позиция','']
+];
+function netOf(t){ return (t.cash||0)+(t.ar||0)+(t.advOut||0)+(t.inventory||0)+(t.vatIn||0)-(t.ap||0)-(t.advIn||0)-(t.loans||0); }
+function renderDash(){
+  const has = snapshots.length>0;
+  $('dashBody').hidden = !has;
+  $('dashEmpty').hidden = has;
+  if(!has){ $('dashWhen').textContent = sessionUser? 'срезов пока нет' : 'войдите, чтобы видеть данные'; return; }
+  const s = snapshots[0], t = s.data.totals||{};
+  $('dashWhen').textContent = 'срез от '+new Date(s.taken_at).toLocaleString('ru-RU')+(s.created_by?' · '+s.created_by.split('@')[0]:'')+' · остатки на '+(s.data.period||'');
+  const net = netOf(t);
+  $('dashTiles').innerHTML = DASH_TILES.map(([k,title,cls])=>{
+    const v = k==='net'? net : (t[k]||0);
+    const c = k==='net'? (v>=0?'good':'bad') : cls;
+    return `<div class="tile ${c}"><div class="k">${title}</div><div class="v small ${v===0?'zero':''}">${fmt(v)} ₸</div></div>`;
+  }).join('');
+  // динамика (последние срезы, старые слева)
+  const hist = snapshots.slice().reverse();
+  $('dashSparks').innerHTML = spark('Дебиторка покупателей', hist.map(x=>x.data.totals?.ar||0), hist) + spark('Деньги', hist.map(x=>x.data.totals?.cash||0), hist);
+  // таблицы по контрагентам
+  const P = s.data.parties||{};
+  const tbl = (key,title,accent)=>{
+    const rows=(P[key]||[]).slice(0,15); if(!rows.length) return '';
+    const max=Math.max(...rows.map(r=>Math.abs(r.amount)),1);
+    const dogovor = name => { const c=contracts.find(x=>x.party && (x.party.toLowerCase().includes(name.toLowerCase().slice(0,12))||name.toLowerCase().includes(x.party.toLowerCase().slice(0,12)))); return c? (c.type==='sell'&&c.defer!=null?` · отсрочка ${c.defer} дн.`:'') : ''; };
+    return `<div class="card" style="margin-top:0"><h2>${title}</h2>${rows.map(r=>`
+      <div style="margin:7px 0">
+        <div class="row" style="justify-content:space-between;gap:8px;font-size:12.5px"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.name)}">${esc(r.name)}<span class="hint">${key==='ar'?dogovor(r.name):''}</span></span><b class="num">${fmt(r.amount)}</b></div>
+        <div style="height:5px;border-radius:3px;background:var(--panel2);margin-top:3px"><div style="height:5px;border-radius:3px;background:${accent};width:${Math.abs(r.amount)/max*100}%"></div></div>
+      </div>`).join('')}
+      <div class="row" style="justify-content:space-between;border-top:1px solid var(--line2);padding-top:6px;margin-top:8px;font-size:12.5px"><b>Итого</b><b class="num">${fmt((s.data.totals||{})[key]||0)} ₸</b></div></div>`;
+  };
+  $('dashTables').innerHTML = tbl('ar','Кто нам должен','var(--warn)') + tbl('advOut','Авансы поставщикам','var(--accent)') + tbl('ap','Мы должны поставщикам','var(--ink3)') + tbl('loans','Займы и кредиты','var(--bad)');
+}
+function spark(title, vals, hist){
+  const w=420,h=90,p=8; const n=vals.length;
+  const last=vals[n-1]||0;
+  if(n<2) return `<div><h3>${title}</h3><div class="hint" style="margin-top:6px">Появится после второго среза · сейчас: <b class="num" style="color:var(--ink)">${fmt(last)} ₸</b></div></div>`;
+  const min=Math.min(...vals,0), max=Math.max(...vals,1);
+  const X=i=>p+(w-2*p)*i/(n-1), Y=v=>h-p-(h-2*p)*((v-min)/((max-min)||1));
+  const pts=vals.map((v,i)=>`${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const titles=hist.map((x,i)=>`${new Date(x.taken_at).toLocaleDateString('ru-RU')}: ${fmt(vals[i])} ₸`);
+  return `<div><h3>${title}</h3>
+  <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;margin-top:4px" role="img" aria-label="${title}: ${titles[titles.length-1]}">
+    <polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${X(n-1)}" cy="${Y(last)}" r="3.5" fill="var(--accent)"/>
+    ${vals.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="7" fill="transparent"><title>${titles[i]}</title></circle>`).join('')}
+  </svg>
+  <div class="row" style="justify-content:space-between;font-size:11.5px;color:var(--ink3)"><span>${new Date(hist[0].taken_at).toLocaleDateString('ru-RU')}</span><b class="num" style="color:var(--ink)">${fmt(last)} ₸</b></div></div>`;
+}
+async function callSync(mode){
+  if(!sb||!sessionUser){ toast('Сначала войдите в кабинет'); return; }
+  const btn = mode==='test'? $('btnTest1c') : $('btnSync1c');
+  const orig=btn.textContent; btn.disabled=true; btn.textContent = mode==='test'?'Проверяем…':'Забираем данные из 1С…';
+  $('dashDiag').hidden=true;
+  try{
+    const {data,error} = await sb.functions.invoke('sync-1c',{body:{mode}});
+    if(error){ let msg=error.message||String(error); try{ const ctx=await error.context?.json?.(); if(ctx?.error) msg=ctx.error; }catch(_){}
+      $('dashDiag').hidden=false; $('dashDiag').textContent='Ошибка: '+msg+'\n\nЧастые причины: функция sync-1c не создана; не заданы секреты ODATA_*; у пользователя 1С нет доступа к OData (см. инструкцию).'; return; }
+    if(data?.error){ $('dashDiag').hidden=false; $('dashDiag').textContent='Ошибка: '+JSON.stringify(data,null,2); return; }
+    if(mode==='test'){ $('dashDiag').hidden=false; $('dashDiag').textContent='Подключение к 1С работает:\n'+JSON.stringify(data,null,2); toast('Диагностика успешна'); }
+    else { toast('Срез из 1С сохранён'); await loadSnapshots(); renderDash(); }
+  }catch(e){ $('dashDiag').hidden=false; $('dashDiag').textContent='Ошибка: '+(e.message||e); }
+  finally{ btn.disabled=false; btn.textContent=orig; }
+}
+$('btnSync1c').onclick=()=>callSync('sync');
+$('btnTest1c').onclick=()=>callSync('test');
 
 /* ============ journal ============ */
 function renderJournal(){
@@ -912,8 +1018,8 @@ $('btnSave').onclick = async ()=>{
 
 /* ============ storage (личный кабинет: Supabase) ============ */
 /* >>> НАСТРОЙКА: вставьте сюда данные вашего проекта Supabase (см. Инструкцию, шаг 2) <<< */
-const SUPABASE_URL = 'https://qhepcqngiokxktujvmhy.supabase.co';   // например: https://abcdefgh.supabase.co
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFoZXBjcW5naW9reGt0dWp2bWh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3MDk0MjgsImV4cCI6MjEwNDI4NTQyOH0.nikAwHzElmdTx41I8GDxR_52m6TBsg3t4Uq2D4tvRpk'; // Settings → API keys → anon public
+const SUPABASE_URL = 'https://qhepcqngiokxktujvmhy.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFoZXBjcW5naW9reGt0dWp2bWh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3MDk0MjgsImV4cCI6MjEwNDI4NTQyOH0.nikAwHzElmdTx41I8GDxR_52m6TBsg3t4Uq2D4tvRpk';
 /* >>> конец настройки <<< */
 const LS_J='fmcg_kp_journal_v1', LS_S='fmcg_kp_settings_v1', LS_C='fmcg_kp_contracts_v1';
 let sb=null, sessionUser=null;
@@ -961,6 +1067,7 @@ async function afterLogin(){
   $('userChip').textContent = sessionUser.email; $('userChip').hidden=false; $('btnLogout').hidden=false;
   $('storeExplain').textContent = 'Вы вошли как '+sessionUser.email+'. Журнал, договора и настройки общие: хранятся в облачной базе и видны всем сотрудникам с доступом. Локальная копия в браузере — на случай отсутствия интернета.';
   await loadCloud(true);
+  loadSnapshots().then(()=>{ if(document.querySelector('#page-dash.active')) renderDash(); });
   renderAll(); renderContracts(); renderJournal(); fillSettings();
   $('jcount').textContent=journal.length; $('ccount').textContent=contracts.length;
   setStatus('ok','облако · '+sessionUser.email.split('@')[0]);
