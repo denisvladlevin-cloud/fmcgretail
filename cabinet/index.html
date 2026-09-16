@@ -149,7 +149,8 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
 .ctype{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
 .ctype.buy{background:var(--warn-soft);color:var(--warn)} .ctype.sell{background:var(--accent-soft);color:var(--accent)}
 
-@media (max-width:900px){ #dashSparks{grid-template-columns:1fr!important} }
+@media (max-width:900px){ #dashSparks{grid-template-columns:1fr!important} #revCostGrid{grid-template-columns:1fr!important} #cycleTiles{grid-template-columns:repeat(2,1fr)!important} #dashRange{width:100%} }
+#pnlTable td:first-child, #pnlTable th:first-child{position:sticky;left:0;background:var(--panel);white-space:nowrap}
 @media (max-width:700px){
   #dashTiles{grid-template-columns:repeat(2,1fr)!important}
   .top .in{padding:8px 10px;gap:8px}
@@ -367,6 +368,51 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
       <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px;margin-top:14px" id="dashSparks"></div>
     </div>
     <div class="grid g3" style="margin-top:14px;align-items:start" id="dashTables"></div>
+  </div>
+
+  <!-- ===== помесячная аналитика ===== -->
+  <div class="card" id="dashMonthsCard" hidden>
+    <div class="row" style="justify-content:space-between">
+      <h2>Аналитика по месяцам</h2>
+      <div class="row" id="dashRange">
+        <label class="f" style="min-width:110px"><span class="l">С месяца</span><select id="mFrom"></select></label>
+        <label class="f" style="min-width:110px"><span class="l">По месяц</span><select id="mTo"></select></label>
+        <label class="f" style="min-width:110px"><span class="l">Группировка</span><select id="mGroup"><option value="m">По месяцам</option><option value="q">По кварталам</option></select></label>
+      </div>
+    </div>
+    <p class="hint" id="mClosedHint" style="margin:6px 0 0"></p>
+
+    <h3 style="margin-top:14px">Прибыль до КПН</h3>
+    <div id="pnlChart" style="margin-top:6px"></div>
+    <div class="tw" style="margin-top:10px"><table id="pnlTable"></table></div>
+
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:16px;margin-top:18px" id="revCostGrid">
+      <div><h3>Выручка по покупателям</h3><div id="revCust" style="margin-top:6px"></div></div>
+      <div><h3>Закуп и затраты по контрагентам</h3><div id="costVendor" style="margin-top:6px"></div></div>
+      <div><h3>Затраты по видам</h3><div id="costType" style="margin-top:6px"></div></div>
+      <div><h3>Продано по товарам (кол-во)</h3><div id="qtyItems" style="margin-top:6px"></div></div>
+    </div>
+
+    <h3 style="margin-top:18px">Фондирование и его стоимость</h3>
+    <div class="tw" style="margin-top:6px"><table id="fundTable"></table></div>
+    <p class="hint" id="fundNote" style="margin:6px 0 0"></p>
+
+    <h3 style="margin-top:18px">Операционный цикл</h3>
+    <div class="tiles" id="cycleTiles" style="grid-template-columns:repeat(5,1fr);margin-top:6px"></div>
+    <p class="hint" id="cycleNote" style="margin:8px 0 0"></p>
+  </div>
+
+  <div class="card" id="aiCard">
+    <h2>Спросить ИИ по данным</h2>
+    <p class="hint" style="margin:0 0 8px">Отвечает по выгрузке из 1С (обороты, покупатели, товары, фондирование). Например: «сколько кг картошки мы продали в этом году?», «какая эффективная ставка по займам MOST?», «сравни прибыль августа с июлем».</p>
+    <div class="row" style="align-items:stretch">
+      <textarea id="aiQ" rows="2" style="flex:1;min-width:200px" placeholder="Ваш вопрос…"></textarea>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button class="btn primary" id="btnAiAsk">Спросить</button>
+        <button class="btn small" id="btnAiInsight">Краткое заключение</button>
+      </div>
+    </div>
+    <div id="aiA" hidden style="margin-top:10px;padding:12px;background:var(--panel2);border-radius:8px;font-size:13.5px;white-space:pre-wrap"></div>
   </div>
 </section>
 
@@ -896,6 +942,7 @@ document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
 
 /* ============ дашборд 1С ============ */
 let snapshots = [];
+let finMonths = [];
 async function loadSnapshots(){
   if(!sb||!sessionUser) return;
   try{
@@ -903,12 +950,17 @@ async function loadSnapshots(){
     if(error) throw error;
     snapshots = data||[];
   }catch(e){ /* таблицы может ещё не быть */ }
+  try{
+    const {data} = await sb.from('fin_months').select('id,data').order('id',{ascending:true}).limit(36);
+    finMonths = (data||[]).map(r=>r.data).filter(d=>d&&d.pnl);
+  }catch(e){ finMonths=[]; }
 }
 const DASH_TILES = [
   ['ar','Долги покупателей','warn'],['advOut','Авансы поставщикам',''],['ap','Мы должны поставщикам',''],['loans','Займы и кредиты',''],
   ['cash','Деньги','good'],['inventory','Товар и запасы',''],['advIn','Авансы от покупателей',''],['net','Чистая позиция','']
 ];
-function netOf(t){ return (t.cash||0)+(t.ar||0)+(t.advOut||0)+(t.inventory||0)+(t.vatIn||0)-(t.ap||0)-(t.advIn||0)-(t.loans||0); }
+function netOf(t){ return (t.cash||0)+(t.ar||0)+(t.advOut||0)+(t.inventory||0)+(t.vatIn||0)-(t.ap||0)-(t.advIn||0)-(t.loans||0)-(t.finaid||0); }
+function debtOf(t){ return (t.loans||0)+(t.finaid||0); }
 function renderDash(){
   const has = snapshots.length>0;
   $('dashBody').hidden = !has;
@@ -918,7 +970,7 @@ function renderDash(){
   $('dashWhen').textContent = 'срез от '+new Date(s.taken_at).toLocaleString('ru-RU')+(s.created_by?' · '+s.created_by.split('@')[0]:'')+' · остатки на '+(s.data.period||'');
   const net = netOf(t);
   $('dashTiles').innerHTML = DASH_TILES.map(([k,title,cls])=>{
-    const v = k==='net'? net : (t[k]||0);
+    const v = k==='net'? net : (k==='loans'? debtOf(t) : (t[k]||0));
     const c = k==='net'? (v>=0?'good':'bad') : cls;
     return `<div class="tile ${c}"><div class="k">${title}</div><div class="v small ${v===0?'zero':''}">${fmt(v)} ₸</div></div>`;
   }).join('');
@@ -938,8 +990,159 @@ function renderDash(){
       </div>`).join('')}
       <div class="row" style="justify-content:space-between;border-top:1px solid var(--line2);padding-top:6px;margin-top:8px;font-size:12.5px"><b>Итого</b><b class="num">${fmt((s.data.totals||{})[key]||0)} ₸</b></div></div>`;
   };
-  $('dashTables').innerHTML = tbl('ar','Кто нам должен','var(--warn)') + tbl('advOut','Авансы поставщикам','var(--accent)') + tbl('ap','Мы должны поставщикам','var(--ink3)') + tbl('loans','Займы и кредиты','var(--bad)');
+  $('dashTables').innerHTML = tbl('ar','Кто нам должен','var(--warn)') + tbl('advOut','Авансы поставщикам','var(--accent)') + tbl('ap','Мы должны поставщикам','var(--ink3)') + tbl('loans','Займы и кредиты','var(--bad)') + tbl('finaid','Финансовая помощь (3387)','var(--bad)');
+  renderMonths();
 }
+
+/* ===== помесячная аналитика ===== */
+const MNAMES=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+const mLabel = ym => { const [y,m]=ym.split('-'); return MNAMES[+m-1]+" '"+y.slice(2); };
+const qLabel = ym => { const [y,m]=ym.split('-'); return 'Q'+(Math.floor((+m-1)/3)+1)+" '"+y.slice(2); };
+const daysInMonth = ym => { const [y,m]=ym.split('-').map(Number); return new Date(Date.UTC(y,m,0)).getUTCDate(); };
+const fmtM = v => Math.abs(v)>=1e6 ? (v/1e6).toLocaleString('ru-RU',{maximumFractionDigits:1})+' млн' : fmt(v);
+let mRangeInit=false;
+function monthsInRange(){
+  const f=$('mFrom').value, t=$('mTo').value;
+  return finMonths.filter(m=>m.month>=f&&m.month<=t);
+}
+function initRange(){
+  if(!finMonths.length) return;
+  const opts = finMonths.map(m=>`<option value="${m.month}">${mLabel(m.month)}</option>`).join('');
+  const keepF=$('mFrom').value, keepT=$('mTo').value;
+  $('mFrom').innerHTML=opts; $('mTo').innerHTML=opts;
+  $('mFrom').value = finMonths.some(m=>m.month===keepF)? keepF : finMonths[0].month;
+  $('mTo').value = finMonths.some(m=>m.month===keepT)? keepT : finMonths[finMonths.length-1].month;
+  if(!mRangeInit){ ['mFrom','mTo','mGroup'].forEach(id=>$(id).addEventListener('change',renderMonths)); mRangeInit=true; }
+}
+function barRows(el, items, accent, unit='₸', totalLabel='Итого'){
+  if(!items.length){ el.innerHTML='<span class="hint">нет данных за период</span>'; return; }
+  const max=Math.max(...items.map(r=>Math.abs(r.amount)),1);
+  const total=items.reduce((a,r)=>a+r.amount,0);
+  el.innerHTML = items.slice(0,10).map(r=>`
+    <div style="margin:6px 0">
+      <div class="row" style="justify-content:space-between;gap:8px;font-size:12.5px"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.name)}">${esc(r.name)}</span><span class="num"><b>${fmt(r.amount)}</b>${total>0?' <span class="hint">'+(r.amount/total*100).toFixed(0)+'%</span>':''}</span></div>
+      <div style="height:5px;border-radius:3px;background:var(--panel2);margin-top:3px"><div style="height:5px;border-radius:3px;background:${accent};width:${Math.abs(r.amount)/max*100}%"></div></div>
+    </div>`).join('')
+    + `<div class="row" style="justify-content:space-between;border-top:1px solid var(--line2);padding-top:6px;margin-top:8px;font-size:12.5px"><b>${totalLabel}</b><b class="num">${fmt(total)} ${unit}</b></div>`;
+}
+function renderMonths(){
+  const has = finMonths.length>0;
+  $('dashMonthsCard').hidden = !has;
+  if(!has) return;
+  initRange();
+  const range = monthsInRange();
+  if(!range.length) return;
+  const curYM = new Date(Date.now()+5*3600e3).toISOString().slice(0,7);
+  $('mClosedHint').textContent = range.some(m=>m.month===curYM) ? '⚠ Текущий месяц ещё не закрыт в 1С — его прибыль и затраты предварительные.' : '';
+
+  // --- группировка ---
+  const grp = $('mGroup').value;
+  const buckets = [];
+  for(const m of range){
+    const key = grp==='q'? qLabel(m.month) : mLabel(m.month);
+    let b = buckets.find(x=>x.key===key);
+    if(!b){ b={key, months:[]}; buckets.push(b); }
+    b.months.push(m);
+  }
+  const agg = b => {
+    const s = f => b.months.reduce((a,m)=>a+(f(m)||0),0);
+    return { key:b.key, revenue:s(m=>m.pnl.revenue), cogs:s(m=>m.pnl.cogs), expenses:s(m=>m.pnl.expenses), interest:s(m=>m.pnl.interest), profit:s(m=>m.pnl.profitBeforeTax), purchases:s(m=>m.purchases) };
+  };
+  const rows = buckets.map(agg);
+
+  // --- график прибыли ---
+  const w=760,h=180,p=26, n=rows.length;
+  const maxAbs=Math.max(...rows.map(r=>Math.abs(r.profit)),1);
+  const bw=Math.min(56,(w-2*p)/n*0.62), step=(w-2*p)/n;
+  const allPos = rows.every(r=>r.profit>=0), allNeg = rows.every(r=>r.profit<=0);
+  const base = allPos? h-p : (allNeg? p : h/2);
+  const scale = allPos||allNeg ? (h-2*p)/maxAbs : (h/2-p)/maxAbs;
+  $('pnlChart').innerHTML = `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto" role="img" aria-label="Прибыль до КПН по периодам">
+    <line x1="${p}" y1="${base}" x2="${w-p}" y2="${base}" stroke="var(--line)" stroke-width="1"/>
+    ${rows.map((r,i)=>{const x=p+step*i+(step-bw)/2; const hh=Math.abs(r.profit)*scale; const y=r.profit>=0? base-hh : base;
+      return `<g><rect x="${x}" y="${y}" width="${bw}" height="${Math.max(hh,1)}" rx="4" fill="${r.profit>=0?'var(--accent)':'var(--bad)'}"><title>${r.key}: ${fmt(r.profit)} ₸</title></rect>
+      <text x="${x+bw/2}" y="${h-6}" text-anchor="middle" font-size="10" fill="var(--ink3)">${r.key}</text>
+      <text x="${x+bw/2}" y="${r.profit>=0? y-4 : y+hh+11}" text-anchor="middle" font-size="10" font-family="var(--ff-mono)" fill="var(--ink2)">${fmtM(r.profit)}</text></g>`;}).join('')}
+  </svg>`;
+
+  // --- таблица P&L ---
+  const trow=(label,f,strong)=>`<tr>${strong?'<td><b>'+label+'</b></td>':'<td>'+label+'</td>'}${rows.map(r=>{const v=f(r);return `<td class="r">${strong?'<b>'+fz(v,0)+'</b>':fz(v,0)}</td>`;}).join('')}</tr>`;
+  $('pnlTable').innerHTML = `<thead><tr><th></th>${rows.map(r=>`<th class="r">${r.key}</th>`).join('')}</tr></thead><tbody>
+    ${trow('Выручка (нетто)',r=>r.revenue)}
+    ${trow('Себестоимость',r=>-r.cogs)}
+    ${trow('Валовая прибыль',r=>r.revenue-r.cogs)}
+    ${trow('Расходы (адм., реализация, %)',r=>-r.expenses)}
+    ${trow('в т.ч. вознаграждение (7310…)',r=>-r.interest)}
+    ${trow('Прибыль до КПН',r=>r.profit,true)}
+    <tr><td>Рентабельность</td>${rows.map(r=>`<td class="r">${r.revenue? (r.profit/r.revenue*100).toFixed(1).replace('.',',')+'%':'—'}</td>`).join('')}</tr>
+  </tbody>`;
+
+  // --- агрегированные списки за период ---
+  const sumLists = key => { const m={}; for(const mo of range) for(const it of (mo[key]||[])) m[it.name]=(m[it.name]||0)+(it.amount??it.qty??0); return Object.entries(m).map(([name,amount])=>({name,amount})).sort((a,b)=>Math.abs(b.amount)-Math.abs(a.amount)); };
+  barRows($('revCust'), sumLists('revByCustomer'), 'var(--accent)');
+  barRows($('costVendor'), sumLists('purchByVendor'), 'var(--ink3)');
+  const types={}; for(const mo of range){ const e=mo.pnl.expByAcc||{}; for(const [c,v] of Object.entries(e)) types[c+' '+v.name]=(types[c+' '+v.name]||0)+v.amount; if(mo.pnl.cogs) types['7010 Себестоимость']=(types['7010 Себестоимость']||0)+mo.pnl.cogs; }
+  barRows($('costType'), Object.entries(types).map(([name,amount])=>({name,amount})).sort((a,b)=>b.amount-a.amount), 'var(--warn)');
+  const qty = sumLists('qtySold');
+  $('qtyItems').innerHTML = qty.length? qty.slice(0,12).map(r=>`<div class="row" style="justify-content:space-between;font-size:12.5px;padding:3px 0;border-bottom:1px dashed var(--line2)"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.name)}">${esc(r.name)}</span><b class="num">${fmt(r.amount)}</b></div>`).join('')+'<p class="hint" style="margin:6px 0 0">в единицах учёта товара (кг/шт)</p>' : '<span class="hint">нет данных (нужен справочник «Номенклатура» в составе REST — см. диагностику)</span>';
+
+  // --- фондирование ---
+  const days = range.reduce((a,m)=>a+daysInMonth(m.month),0);
+  const srcMap={}; // label -> {acc, balances:[], interest}
+  for(const mo of range){ const f=mo.funding||{}; for(const [acc,list] of Object.entries(f)) for(const it of list){ const id=acc+'|'+it.name; srcMap[id]=srcMap[id]||{acc,name:it.name,bal:{},interest:0}; srcMap[id].bal[mo.month]=it.amount; } }
+  let totalInt = range.reduce((a,m)=>a+(m.pnl.interest||0),0);
+  const intByParty={}; for(const mo of range) for(const it of (mo.interestByParty||[])) intByParty[it.name]=(intByParty[it.name]||0)+it.amount;
+  let matchedInt=0;
+  const srcs = Object.values(srcMap).map(s=>{
+    const vals = range.map(m=>s.bal[m.month]||0);
+    const avg = vals.reduce((a,v)=>a+v,0)/vals.length;
+    const last = vals[vals.length-1];
+    const key = Object.keys(intByParty).find(k=>k.toLowerCase().includes(s.name.toLowerCase().slice(0,10))||s.name.toLowerCase().includes(k.toLowerCase().slice(0,10)));
+    const interest = key? intByParty[key] : 0; if(key) matchedInt+=interest;
+    const rate = avg>1000&&interest>0? interest/avg*(365/days)*100 : null;
+    return {acc:s.acc,name:s.name,avg,last,interest,rate};
+  }).filter(s=>Math.abs(s.avg)>=1||Math.abs(s.last)>=1).sort((a,b)=>b.last-a.last);
+  const totAvg = srcs.reduce((a,s)=>a+s.avg,0), totLast = srcs.reduce((a,s)=>a+s.last,0);
+  const totRate = totAvg>1000&&totalInt>0? totalInt/totAvg*(365/days)*100 : null;
+  const accTag = a => ({'3010':'займ кр.','3020':'займ','3050':'займ проч.','3380':'% к оплате','3387':'фин. помощь','4010':'займ долгоср.','4030':'кредит долгоср.'}[a]||a);
+  $('fundTable').innerHTML = `<thead><tr><th>Источник</th><th>Счёт</th><th class="r">Остаток на конец</th><th class="r">Средний остаток</th><th class="r">Вознаграждение за период</th><th class="r">Эфф. ставка, годовых</th></tr></thead><tbody>
+    ${srcs.map(s=>`<tr><td>${esc(s.name)}</td><td><span class="badge">${s.acc} · ${accTag(s.acc)}</span></td><td class="r">${fz(s.last,0)}</td><td class="r">${fz(s.avg,0)}</td><td class="r">${fz(s.interest,0)}</td><td class="r">${s.rate!=null? '<b>'+s.rate.toFixed(1).replace('.',',')+'%</b>' : '<span class="hint">—</span>'}</td></tr>`).join('')}
+    <tr style="border-top:2px solid var(--line)"><td><b>Итого долговое фондирование</b></td><td></td><td class="r"><b>${fmt(totLast)}</b></td><td class="r"><b>${fmt(totAvg)}</b></td><td class="r"><b>${fmt(totalInt)}</b></td><td class="r"><b>${totRate!=null? totRate.toFixed(1).replace('.',',')+'%':'—'}</b></td></tr>
+  </tbody>`;
+  $('fundNote').textContent = 'Эфф. ставка = вознаграждение за период ÷ средний остаток × годовой коэффициент. '+(totalInt-matchedInt>1? 'Часть вознаграждения ('+fmt(totalInt-matchedInt)+' ₸) не привязана к конкретному источнику — она учтена только в итоговой строке.':'')+' Беспроцентная фин. помощь (3387) снижает общую ставку.';
+
+  // --- операционный цикл ---
+  const avgB = k => range.reduce((a,m)=>a+((m.endBalances||{})[k]||0),0)/range.length;
+  const revSum = rows.reduce((a,r)=>a+r.revenue,0), cogsSum=rows.reduce((a,r)=>a+r.cogs,0), purchSum=rows.reduce((a,r)=>a+r.purchases,0);
+  const dso = revSum>0? avgB('ar')/revSum*days : null;
+  const dio = cogsSum>0? avgB('inventory')/cogsSum*days : null;
+  const dpo = purchSum>0? avgB('ap')/purchSum*days : null;
+  const dAdv = purchSum>0? avgB('advOut')/purchSum*days : null;
+  const ccc = (dso??0)+(dio??0)+(dAdv??0)-(dpo??0);
+  const ct=(t,v,hint,cls)=>`<div class="tile ${cls||''}"><div class="k">${t}</div><div class="v small">${v==null?'—':Math.round(v)+' дн.'}</div><div class="hint">${hint}</div></div>`;
+  $('cycleTiles').innerHTML = ct('Дебиторка (DSO)',dso,'клиенты платят через')+ct('Товар (DIO)',dio,'товар лежит')+ct('Авансы выданные',dAdv,'деньги у поставщиков')+ct('Кредиторка (DPO)',dpo,'мы платим через','good')+ct('Кассовый цикл',ccc,'деньги заморожены на', ccc>60?'warn':'');
+  $('cycleNote').textContent = `Кассовый цикл = DSO + DIO + авансы − DPO = ${dso!=null?Math.round(dso):'—'} + ${dio!=null?Math.round(dio):'—'} + ${dAdv!=null?Math.round(dAdv):'—'} − ${dpo!=null?Math.round(dpo):'—'} ≈ ${Math.round(ccc)} дн.: столько в среднем проходит от оплаты поставщику до получения денег от клиента. На каждый день цикла нужна оборотка ≈ ${fmt((cogsSum+0)/days)} ₸/день себестоимости.`;
+}
+
+/* ===== ИИ ===== */
+async function askAI(mode){
+  if(!sb||!sessionUser){ toast('Сначала войдите в кабинет'); return; }
+  const q = $('aiQ').value.trim();
+  if(mode==='ask' && !q){ toast('Введите вопрос'); return; }
+  const btn = mode==='ask'? $('btnAiAsk') : $('btnAiInsight'); const orig=btn.textContent;
+  btn.disabled=true; btn.textContent='Думаю…'; $('aiA').hidden=false; $('aiA').textContent='Анализирую данные…';
+  try{
+    const {data,error} = await sb.functions.invoke('ask-ai',{body: mode==='ask'? {question:q} : {mode:'insight'}});
+    if(error){ let msg=error.message||String(error); try{ const ctx=await error.context?.json?.(); if(ctx?.error) msg=ctx.error; }catch(_){}
+      $('aiA').textContent='Ошибка: '+msg; return; }
+    if(data?.error){ $('aiA').textContent='Ошибка: '+data.error; return; }
+    $('aiA').textContent = data.answer || '(пусто)';
+  }catch(e){ $('aiA').textContent='Ошибка: '+(e.message||e); }
+  finally{ btn.disabled=false; btn.textContent=orig; }
+}
+$('btnAiAsk').onclick=()=>askAI('ask');
+$('btnAiInsight').onclick=()=>askAI('insight');
+$('aiQ').addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); askAI('ask'); } });
 function spark(title, vals, hist){
   const w=420,h=90,p=8; const n=vals.length;
   const last=vals[n-1]||0;
