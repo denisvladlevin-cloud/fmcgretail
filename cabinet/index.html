@@ -53,6 +53,9 @@ span.zero{color:var(--bad)!important}
 input[type=checkbox]{width:auto;accent-color:var(--accent)}
 label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--ink2)}
 label.f span.l{font-weight:500}
+/* ровная сетка полей: подписи занимают одинаковую высоту, поля стоят в линию */
+.grid.g6>label.f>span.l, .grid.g4>label.f>span.l{min-height:2.5em;display:flex;align-items:flex-end}
+@media (max-width:900px){ .grid.g6>label.f>span.l, .grid.g4>label.f>span.l{min-height:0} }
 .hint{font-size:11.5px;color:var(--ink3)}
 
 .top{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid var(--line);box-shadow:var(--shadow)}
@@ -149,8 +152,10 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
 .ctype{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
 .ctype.buy{background:var(--warn-soft);color:var(--warn)} .ctype.sell{background:var(--accent-soft);color:var(--accent)}
 
-@media (max-width:900px){ #dashSparks{grid-template-columns:1fr!important} #revCostGrid{grid-template-columns:1fr!important} #cycleTiles{grid-template-columns:repeat(2,1fr)!important} #dashRange{width:100%} }
+@media (max-width:900px){ #revCostGrid{grid-template-columns:1fr!important} #cycleTiles{grid-template-columns:repeat(2,1fr)!important} #dashRange{width:100%} }
 #pnlTable td:first-child, #pnlTable th:first-child{position:sticky;left:0;background:var(--panel);white-space:nowrap}
+#pnlTable td.sumcol, #pnlTable th.sumcol{border-left:2px solid var(--line);background:color-mix(in srgb,var(--panel2) 55%,transparent)}
+#pnlTable th.sumcol{background:var(--panel2)}
 @media (max-width:700px){
   #dashTiles{grid-template-columns:repeat(2,1fr)!important}
   .top .in{padding:8px 10px;gap:8px}
@@ -191,7 +196,7 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
 <body>
 
 <header class="top"><div class="in">
-  <div class="brand"><span class="mark">FMCG Retail</span><h1>Калькулятор отпускной цены</h1></div>
+  <div class="brand"><span class="mark">FMCG Retail</span></div>
   <div class="tabs" role="tablist">
     <button role="tab" aria-selected="true" data-tab="calc">Расчёт</button>
     <button role="tab" aria-selected="false" data-tab="dash">Дашборд 1С</button>
@@ -293,7 +298,7 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
       <thead><tr>
         <th></th><th>Товар</th><th>Ед.</th><th class="r">Кол-во</th><th class="r">Цена завода</th><th>Вал.</th>
         <th class="r">Логистика/ед, ₸</th><th class="r">Себест./ед без НДС, ₸</th><th class="r">Проценты/ед, ₸</th>
-        <th class="r">Наценка</th><th class="r">Цена без НДС, ₸</th><th class="r">Цена с НДС, ₸</th><th class="r">Цена в КП, ₸ с НДС</th><th class="r">Маржа</th><th></th>
+        <th class="r">Наценка</th><th class="r">Цена без НДС, ₸</th><th class="r">Цена с НДС, ₸</th><th class="r">Цена в КП, с НДС <select id="quoteCurSel" style="width:auto;margin-left:4px"><option>KZT</option><option>USD</option><option>RUB</option><option>CNY</option><option>EUR</option></select></th><th class="r">Маржа</th><th></th>
       </tr></thead>
       <tbody id="posBody"></tbody>
     </table></div>
@@ -365,7 +370,6 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
   <div id="dashBody" hidden>
     <div class="card">
       <div class="tiles" id="dashTiles" style="grid-template-columns:repeat(4,1fr)"></div>
-      <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px;margin-top:14px" id="dashSparks"></div>
     </div>
     <div class="grid g3" style="margin-top:14px;align-items:start" id="dashTables"></div>
   </div>
@@ -385,6 +389,7 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
     <h3 style="margin-top:14px">Прибыль до КПН</h3>
     <div id="pnlChart" style="margin-top:6px"></div>
     <div class="tw" style="margin-top:10px"><table id="pnlTable"></table></div>
+    <p class="hint" id="fcNote" style="margin:6px 0 0"></p>
 
     <div class="grid" style="grid-template-columns:1fr 1fr;gap:16px;margin-top:18px" id="revCostGrid">
       <div><h3>Выручка по покупателям</h3><div id="revCust" style="margin-top:6px"></div></div>
@@ -408,6 +413,11 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
     <div class="row" style="align-items:stretch">
       <textarea id="aiQ" rows="2" style="flex:1;min-width:200px" placeholder="Ваш вопрос…"></textarea>
       <div style="display:flex;flex-direction:column;gap:6px">
+        <label class="f"><span class="l">Модель ИИ</span><select id="aiModel">
+          <option value="groq">Groq · GPT-OSS 120B (бесплатно)</option>
+          <option value="openai">OpenAI · GPT-5.6</option>
+          <option value="gemini">Google · Gemini (бесплатно)</option>
+        </select></label>
         <button class="btn primary" id="btnAiAsk">Спросить</button>
         <button class="btn small" id="btnAiInsight">Краткое заключение</button>
       </div>
@@ -604,7 +614,7 @@ function newPosition(){
 function newKP(){
   const s = settings;
   const k = {id:uid(), createdAt:new Date().toISOString(), date:today(), customer:'', supplier:'', status:'draft', contract:'', incoterms:'EXW',
-    supCountry:'CN', buyCountry:'KZ', transit:false, author:'', note:'',
+    supCountry:'CN', buyCountry:'KZ', transit:false, author:'', note:'', quoteCur:'KZT',
     terms:{prepay:s.prepay, balanceMode:s.balanceMode, balanceDay:s.balanceDay, prod:s.prod, transit:s.transit, customs:s.customs, defer:s.defer, rate:s.rateDay, rateMode:'day', debtShare:s.debtShare, vatRefund:s.vatRefund, vatOut:s.vatOut, overhead:s.overhead, loss:s.loss},
     rates:{...s.rates}, positions:[]};
   kp = k; k.positions=[newPosition()];
@@ -665,7 +675,8 @@ function calcPosition(p, k){
   const priceNoVat = p.markupMode==='pct' ? fullCost*(1+n(p.markup)/100) : fullCost + n(p.markup);
   const vatOut = n(t.vatOut)/100;
   const priceVat = priceNoVat*(1+vatOut);
-  const quote = (p.quote===null||p.quote===''||p.quote===undefined) ? null : n(p.quote);
+  const qRate = (k.quoteCur&&k.quoteCur!=='KZT')? (r[k.quoteCur]||1) : 1; // «Цена в КП» вводится в выбранной валюте
+  const quote = (p.quote===null||p.quote===''||p.quote===undefined) ? null : n(p.quote)*qRate;
   const sell = quote!==null ? quote : priceVat;
   const sellNoVat = sell/(1+vatOut);
   const profitUnit = sellNoVat - fullCost;
@@ -708,6 +719,7 @@ function fillHeader(){
   fillTerms();
   renderContractPick();
   $('ratesHint').textContent = ['USD','RUB','CNY','EUR'].map(c=>c+' '+fmt2(kp.rates[c])).join(' · ');
+  if($('quoteCurSel').value !== (kp.quoteCur||'KZT')) $('quoteCurSel').value = kp.quoteCur||'KZT';
 }
 function fillTerms(){
   for(const [id,key] of Object.entries(TMAP)){ $(id).value = kp.terms[key] ?? ''; markZero($(id)); }
@@ -725,6 +737,7 @@ function renderTimeline(){
 function posRow(p,c){
   const marginCls = c.margin<0?'bad':(c.margin<0.08?'warn':'good');
   const hasQuote = c.quote!==null;
+  const qc = kp.quoteCur||'KZT', qcr = qc==='KZT'? 1 : (kp.rates[qc]||1);
   const zc = v => n(v)===0 ? ' zero':'';
   return `<tr data-id="${p.id}">
     <td><button class="btn small ghost" data-act="toggle" title="Подробно">${expanded.has(p.id)?'▾':'▸'}</button></td>
@@ -739,7 +752,7 @@ function posRow(p,c){
     <td class="r"><div class="row" style="gap:3px;flex-wrap:nowrap;justify-content:flex-end"><input class="numin${zc(p.markup)}" inputmode="decimal" data-f="markup" value="${esc(p.markup)}" style="width:64px"><select data-f="markupMode" style="width:auto;padding:4px"><option value="pct" ${p.markupMode==='pct'?'selected':''}>%</option><option value="abs" ${p.markupMode==='abs'?'selected':''}>₸</option></select></div></td>
     <td class="r">${fz(c.priceNoVat)}</td>
     <td class="r"><b>${fz(c.priceVat)}</b></td>
-    <td class="r"><input class="numin" inputmode="decimal" data-f="quote" value="${p.quote??''}" placeholder="${fmt2(c.priceVat)}">${hasQuote?`<div class="hint" style="text-align:right;white-space:normal">наценка факт: <b>${pct(c.factMarkup)}</b> · ${fmt2(c.sellNoVat-c.fullCost)} ₸/ед</div>`:''}</td>
+    <td class="r"><div class="row" style="gap:4px;flex-wrap:nowrap;justify-content:flex-end"><input class="numin" inputmode="decimal" data-f="quote" value="${p.quote??''}" placeholder="${fmt2(c.priceVat/qcr)}">${qc!=='KZT'?`<span class="hint">${qc}</span>`:''}</div>${hasQuote?`<div class="hint" style="text-align:right;white-space:normal">${qc!=='KZT'? '≈ '+fmt2(c.sell)+' ₸ · ':''}наценка факт: <b>${pct(c.factMarkup)}</b> · ${fmt2(c.sellNoVat-c.fullCost)} ₸/ед</div>`:''}</td>
     <td class="r"><span class="badge ${marginCls}">${pct(c.margin)}</span></td>
     <td><button class="btn small ghost danger" data-act="del" title="Удалить">✕</button></td>
   </tr>
@@ -849,6 +862,7 @@ $('posBody').addEventListener('click', e=>{
   renderAll(false);
 });
 $('btnAddPos').onclick = ()=>{ const p=newPosition(); const last=kp.positions.at(-1); if(last){p.cur=last.cur;p.unit=last.unit;p.dutyPct=last.dutyPct;p.logIncluded=last.logIncluded;} kp.positions.push(p); expanded.add(p.id); renderAll(false); };
+$('quoteCurSel').addEventListener('change',()=>{ kp.quoteCur=$('quoteCurSel').value; renderAll(false); });
 $('btnNew').onclick = ()=>{ if(confirm('Начать новый расчёт? Несохранённые изменения будут потеряны.')){ newKP(); expanded.clear(); expanded.add(kp.positions[0].id); renderAll(); } };
 $('btnDup').onclick = ()=>{ const c=structuredClone(kp); c.id=uid(); c.createdAt=new Date().toISOString(); c.date=today(); c.status='draft'; delete c.savedAt; c.positions.forEach(p=>p.id=uid()); kp=c; renderAll(); toast('Создана копия — не забудьте сохранить'); };
 
@@ -956,7 +970,7 @@ async function loadSnapshots(){
   }catch(e){ finMonths=[]; }
 }
 const DASH_TILES = [
-  ['ar','Долги покупателей','warn'],['advOut','Авансы поставщикам',''],['ap','Мы должны поставщикам',''],['loans','Займы и кредиты',''],
+  ['ar','Долги покупателей','warn'],['advOut','Авансы поставщикам',''],['ap','Мы должны поставщикам',''],['loans','Займы, кредиты и финпомощь',''],
   ['cash','Деньги','good'],['inventory','Товар и запасы',''],['advIn','Авансы от покупателей',''],['net','Чистая позиция','']
 ];
 function netOf(t){ return (t.cash||0)+(t.ar||0)+(t.advOut||0)+(t.inventory||0)+(t.vatIn||0)-(t.ap||0)-(t.advIn||0)-(t.loans||0)-(t.finaid||0); }
@@ -974,13 +988,14 @@ function renderDash(){
     const c = k==='net'? (v>=0?'good':'bad') : cls;
     return `<div class="tile ${c}"><div class="k">${title}</div><div class="v small ${v===0?'zero':''}">${fmt(v)} ₸</div></div>`;
   }).join('');
-  // динамика (последние срезы, старые слева)
-  const hist = snapshots.slice().reverse();
-  $('dashSparks').innerHTML = spark('Дебиторка покупателей', hist.map(x=>x.data.totals?.ar||0), hist) + spark('Деньги', hist.map(x=>x.data.totals?.cash||0), hist);
   // таблицы по контрагентам
   const P = s.data.parties||{};
+  // займы + финпомощь одним списком
+  { const m={}; for(const k of ['loans','finaid']) for(const r of (P[k]||[])) m[r.name]=(m[r.name]||0)+r.amount;
+    P.debt = Object.entries(m).map(([name,amount])=>({name,amount})).sort((a,b)=>b.amount-a.amount); }
   const tbl = (key,title,accent)=>{
-    const rows=(P[key]||[]).slice(0,15); if(!rows.length) return '';
+    const all=(P[key]||[]); const rows=all.slice(0,15); if(!rows.length) return '';
+    const totalV = (s.data.totals||{})[key] ?? all.reduce((a,r)=>a+r.amount,0);
     const max=Math.max(...rows.map(r=>Math.abs(r.amount)),1);
     const dogovor = name => { const c=contracts.find(x=>x.party && (x.party.toLowerCase().includes(name.toLowerCase().slice(0,12))||name.toLowerCase().includes(x.party.toLowerCase().slice(0,12)))); return c? (c.type==='sell'&&c.defer!=null?` · отсрочка ${c.defer} дн.`:'') : ''; };
     return `<div class="card" style="margin-top:0"><h2>${title}</h2>${rows.map(r=>`
@@ -988,9 +1003,9 @@ function renderDash(){
         <div class="row" style="justify-content:space-between;gap:8px;font-size:12.5px"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.name)}">${esc(r.name)}<span class="hint">${key==='ar'?dogovor(r.name):''}</span></span><b class="num">${fmt(r.amount)}</b></div>
         <div style="height:5px;border-radius:3px;background:var(--panel2);margin-top:3px"><div style="height:5px;border-radius:3px;background:${accent};width:${Math.abs(r.amount)/max*100}%"></div></div>
       </div>`).join('')}
-      <div class="row" style="justify-content:space-between;border-top:1px solid var(--line2);padding-top:6px;margin-top:8px;font-size:12.5px"><b>Итого</b><b class="num">${fmt((s.data.totals||{})[key]||0)} ₸</b></div></div>`;
+      <div class="row" style="justify-content:space-between;border-top:1px solid var(--line2);padding-top:6px;margin-top:8px;font-size:12.5px"><b>Итого</b><b class="num">${fmt(totalV)} ₸</b></div></div>`;
   };
-  $('dashTables').innerHTML = tbl('ar','Кто нам должен','var(--warn)') + tbl('advOut','Авансы поставщикам','var(--accent)') + tbl('ap','Мы должны поставщикам','var(--ink3)') + tbl('loans','Займы и кредиты','var(--bad)') + tbl('finaid','Финансовая помощь (3387)','var(--bad)');
+  $('dashTables').innerHTML = tbl('ar','Кто нам должен','var(--warn)') + tbl('advOut','Авансы поставщикам','var(--accent)') + tbl('ap','Мы должны поставщикам','var(--ink3)') + tbl('debt','Займы, кредиты и финпомощь (вкл. 3387)','var(--bad)');
   renderMonths();
 }
 
@@ -1065,17 +1080,34 @@ function renderMonths(){
       <text x="${x+bw/2}" y="${r.profit>=0? y-4 : y+hh+11}" text-anchor="middle" font-size="10" font-family="var(--ff-mono)" fill="var(--ink2)">${fmtM(r.profit)}</text></g>`;}).join('')}
   </svg>`;
 
-  // --- таблица P&L ---
-  const trow=(label,f,strong)=>`<tr>${strong?'<td><b>'+label+'</b></td>':'<td>'+label+'</td>'}${rows.map(r=>{const v=f(r);return `<td class="r">${strong?'<b>'+fz(v,0)+'</b>':fz(v,0)}</td>`;}).join('')}</tr>`;
-  $('pnlTable').innerHTML = `<thead><tr><th></th>${rows.map(r=>`<th class="r">${r.key}</th>`).join('')}</tr></thead><tbody>
+  // --- таблица P&L: периоды + «Итого» + «Прогноз 2026» ---
+  const sumF = f => rows.reduce((a,r)=>a+f(r),0);
+  const tot = {revenue:sumF(r=>r.revenue), cogs:sumF(r=>r.cogs), expenses:sumF(r=>r.expenses), interest:sumF(r=>r.interest), profit:sumF(r=>r.profit), purchases:sumF(r=>r.purchases)};
+  const y26closed = finMonths.filter(m=>m.month.startsWith('2026-')&&m.month<curYM);
+  let fc=null, fcText='';
+  if(y26closed.length>=2){
+    const S=f=>y26closed.reduce((a,m)=>a+(f(m)||0),0);
+    const lastN=y26closed.slice(-3);
+    const A=f=>lastN.reduce((a,m)=>a+(f(m)||0),0)/lastN.length;
+    const restM=12-y26closed.length;
+    const mk=f=>S(f)+A(f)*restM;
+    fc={revenue:mk(m=>m.pnl.revenue), cogs:mk(m=>m.pnl.cogs), expenses:mk(m=>m.pnl.expenses), interest:mk(m=>m.pnl.interest), purchases:mk(m=>m.purchases)};
+    fc.profit=fc.revenue-fc.cogs-fc.expenses;
+    fcText=`Прогноз 2026 = факт закрытых месяцев (${mLabel(y26closed[0].month)}–${mLabel(y26closed[y26closed.length-1].month)}) + среднее последних ${lastN.length} закрытых месяцев × ${restM} оставшихся. Текущий незакрытый месяц в прогноз не входит.`;
+  }
+  const cellV=(v,strong,cls)=>`<td class="r ${cls||''}">${strong?'<b>'+fz(v,0)+'</b>':fz(v,0)}</td>`;
+  const trow=(label,f,strong)=>`<tr>${strong?'<td><b>'+label+'</b></td>':'<td>'+label+'</td>'}${rows.map(r=>cellV(f(r),strong)).join('')}${cellV(f(tot),strong,'sumcol')}${fc?cellV(f(fc),strong,'sumcol'):''}</tr>`;
+  const pctCell=(o,cls)=>`<td class="r ${cls||''}">${o.revenue? (o.profit/o.revenue*100).toFixed(1).replace('.',',')+'%':'—'}</td>`;
+  $('pnlTable').innerHTML = `<thead><tr><th></th>${rows.map(r=>`<th class="r">${r.key}</th>`).join('')}<th class="r sumcol">Итого</th>${fc?'<th class="r sumcol">Прогноз 2026</th>':''}</tr></thead><tbody>
     ${trow('Выручка (нетто)',r=>r.revenue)}
     ${trow('Себестоимость',r=>-r.cogs)}
     ${trow('Валовая прибыль',r=>r.revenue-r.cogs)}
     ${trow('Расходы (адм., реализация, %)',r=>-r.expenses)}
     ${trow('в т.ч. вознаграждение (7310…)',r=>-r.interest)}
     ${trow('Прибыль до КПН',r=>r.profit,true)}
-    <tr><td>Рентабельность</td>${rows.map(r=>`<td class="r">${r.revenue? (r.profit/r.revenue*100).toFixed(1).replace('.',',')+'%':'—'}</td>`).join('')}</tr>
+    <tr><td>Рентабельность</td>${rows.map(r=>pctCell(r)).join('')}${pctCell(tot,'sumcol')}${fc?pctCell(fc,'sumcol'):''}</tr>
   </tbody>`;
+  $('fcNote').textContent = fcText;
 
   // --- агрегированные списки за период ---
   const sumLists = key => { const m={}; for(const mo of range) for(const it of (mo[key]||[])) m[it.name]=(m[it.name]||0)+(it.amount??it.qty??0); return Object.entries(m).map(([name,amount])=>({name,amount})).sort((a,b)=>Math.abs(b.amount)-Math.abs(a.amount)); };
@@ -1086,30 +1118,36 @@ function renderMonths(){
   const qty = sumLists('qtySold');
   $('qtyItems').innerHTML = qty.length? qty.slice(0,12).map(r=>`<div class="row" style="justify-content:space-between;font-size:12.5px;padding:3px 0;border-bottom:1px dashed var(--line2)"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.name)}">${esc(r.name)}</span><b class="num">${fmt(r.amount)}</b></div>`).join('')+'<p class="hint" style="margin:6px 0 0">в единицах учёта товара (кг/шт)</p>' : '<span class="hint">нет данных (нужен справочник «Номенклатура» в составе REST — см. диагностику)</span>';
 
-  // --- фондирование ---
+  // --- фондирование: по кредиторам, 3050 = начисленные проценты (не тело долга) ---
   const days = range.reduce((a,m)=>a+daysInMonth(m.month),0);
-  const srcMap={}; // label -> {acc, balances:[], interest}
-  for(const mo of range){ const f=mo.funding||{}; for(const [acc,list] of Object.entries(f)) for(const it of list){ const id=acc+'|'+it.name; srcMap[id]=srcMap[id]||{acc,name:it.name,bal:{},interest:0}; srcMap[id].bal[mo.month]=it.amount; } }
+  const byParty={}; // кредитор -> {accs, bal (тело по месяцам), accr (3050 по месяцам)}
+  for(const mo of range){ const f=mo.funding||{}; for(const [acc,list] of Object.entries(f)) for(const it of list){
+    const p = byParty[it.name] = byParty[it.name]||{name:it.name,accs:new Set(),bal:{},accr:{}};
+    if(acc==='3050'){ p.accr[mo.month]=(p.accr[mo.month]||0)+it.amount; }
+    else { p.accs.add(acc); p.bal[mo.month]=(p.bal[mo.month]||0)+it.amount; }
+  } }
   let totalInt = range.reduce((a,m)=>a+(m.pnl.interest||0),0);
   const intByParty={}; for(const mo of range) for(const it of (mo.interestByParty||[])) intByParty[it.name]=(intByParty[it.name]||0)+it.amount;
   let matchedInt=0;
-  const srcs = Object.values(srcMap).map(s=>{
+  const lastYM = range[range.length-1].month;
+  const srcs = Object.values(byParty).map(s=>{
     const vals = range.map(m=>s.bal[m.month]||0);
     const avg = vals.reduce((a,v)=>a+v,0)/vals.length;
     const last = vals[vals.length-1];
+    const accrLast = s.accr[lastYM]||0;
     const key = Object.keys(intByParty).find(k=>k.toLowerCase().includes(s.name.toLowerCase().slice(0,10))||s.name.toLowerCase().includes(k.toLowerCase().slice(0,10)));
     const interest = key? intByParty[key] : 0; if(key) matchedInt+=interest;
     const rate = avg>1000&&interest>0? interest/avg*(365/days)*100 : null;
-    return {acc:s.acc,name:s.name,avg,last,interest,rate};
-  }).filter(s=>Math.abs(s.avg)>=1||Math.abs(s.last)>=1).sort((a,b)=>b.last-a.last);
-  const totAvg = srcs.reduce((a,s)=>a+s.avg,0), totLast = srcs.reduce((a,s)=>a+s.last,0);
+    return {accs:[...s.accs].sort(),name:s.name,avg,last,accrLast,interest,rate};
+  }).filter(s=>Math.abs(s.avg)>=1||Math.abs(s.last)>=1||Math.abs(s.accrLast)>=1).sort((a,b)=>b.last-a.last);
+  const totAvg = srcs.reduce((a,s)=>a+s.avg,0), totLast = srcs.reduce((a,s)=>a+s.last,0), totAccr = srcs.reduce((a,s)=>a+s.accrLast,0);
   const totRate = totAvg>1000&&totalInt>0? totalInt/totAvg*(365/days)*100 : null;
-  const accTag = a => ({'3010':'займ кр.','3020':'займ','3050':'займ проч.','3380':'% к оплате','3387':'фин. помощь','4010':'займ долгоср.','4030':'кредит долгоср.'}[a]||a);
-  $('fundTable').innerHTML = `<thead><tr><th>Источник</th><th>Счёт</th><th class="r">Остаток на конец</th><th class="r">Средний остаток</th><th class="r">Вознаграждение за период</th><th class="r">Эфф. ставка, годовых</th></tr></thead><tbody>
-    ${srcs.map(s=>`<tr><td>${esc(s.name)}</td><td><span class="badge">${s.acc} · ${accTag(s.acc)}</span></td><td class="r">${fz(s.last,0)}</td><td class="r">${fz(s.avg,0)}</td><td class="r">${fz(s.interest,0)}</td><td class="r">${s.rate!=null? '<b>'+s.rate.toFixed(1).replace('.',',')+'%</b>' : '<span class="hint">—</span>'}</td></tr>`).join('')}
-    <tr style="border-top:2px solid var(--line)"><td><b>Итого долговое фондирование</b></td><td></td><td class="r"><b>${fmt(totLast)}</b></td><td class="r"><b>${fmt(totAvg)}</b></td><td class="r"><b>${fmt(totalInt)}</b></td><td class="r"><b>${totRate!=null? totRate.toFixed(1).replace('.',',')+'%':'—'}</b></td></tr>
+  const accTag = a => ({'3010':'займ кр.','3020':'займ','3380':'% к оплате','3387':'фин. помощь','4010':'займ долгоср.','4030':'кредит долгоср.'}[a]||a);
+  $('fundTable').innerHTML = `<thead><tr><th>Кредитор</th><th>Счета</th><th class="r">Тело долга на конец</th><th class="r">Начисл. % (3050)</th><th class="r">Средний остаток тела</th><th class="r">Вознаграждение за период</th><th class="r">Эфф. ставка, годовых</th></tr></thead><tbody>
+    ${srcs.map(s=>`<tr><td>${esc(s.name)}</td><td>${s.accs.map(a=>`<span class="badge">${a} · ${accTag(a)}</span>`).join(' ')}</td><td class="r">${fz(s.last,0)}</td><td class="r">${s.accrLast?fz(s.accrLast,0):'<span class="hint">—</span>'}</td><td class="r">${fz(s.avg,0)}</td><td class="r">${fz(s.interest,0)}</td><td class="r">${s.rate!=null? '<b>'+s.rate.toFixed(1).replace('.',',')+'%</b>' : '<span class="hint">—</span>'}</td></tr>`).join('')}
+    <tr style="border-top:2px solid var(--line)"><td><b>Итого долговое фондирование</b></td><td></td><td class="r"><b>${fmt(totLast)}</b></td><td class="r"><b>${fmt(totAccr)}</b></td><td class="r"><b>${fmt(totAvg)}</b></td><td class="r"><b>${fmt(totalInt)}</b></td><td class="r"><b>${totRate!=null? totRate.toFixed(1).replace('.',',')+'%':'—'}</b></td></tr>
   </tbody>`;
-  $('fundNote').textContent = 'Эфф. ставка = вознаграждение за период ÷ средний остаток × годовой коэффициент. '+(totalInt-matchedInt>1? 'Часть вознаграждения ('+fmt(totalInt-matchedInt)+' ₸) не привязана к конкретному источнику — она учтена только в итоговой строке.':'')+' Беспроцентная фин. помощь (3387) снижает общую ставку.';
+  $('fundNote').textContent = 'Эфф. ставка = вознаграждение (7310/7320/7340) за период ÷ средний остаток тела долга × годовой коэффициент. Тело долга — счета 3010/3020/3380/4010/4030 и финпомощь 3387 (вся финпомощь процентная). Начисленные, но не выплаченные проценты (счёт 3050) в тело долга не входят и показаны отдельной колонкой. '+(totalInt-matchedInt>1? 'Часть вознаграждения ('+fmt(totalInt-matchedInt)+' ₸) 1С не привязала к кредитору — она учтена только в строке «Итого».':'');
 
   // --- операционный цикл ---
   const avgB = k => range.reduce((a,m)=>a+((m.endBalances||{})[k]||0),0)/range.length;
@@ -1132,7 +1170,8 @@ async function askAI(mode){
   const btn = mode==='ask'? $('btnAiAsk') : $('btnAiInsight'); const orig=btn.textContent;
   btn.disabled=true; btn.textContent='Думаю…'; $('aiA').hidden=false; $('aiA').textContent='Анализирую данные…';
   try{
-    const {data,error} = await sb.functions.invoke('ask-ai',{body: mode==='ask'? {question:q} : {mode:'insight'}});
+    const provider = $('aiModel').value;
+    const {data,error} = await sb.functions.invoke('ask-ai',{body: mode==='ask'? {question:q, provider} : {mode:'insight', provider}});
     if(error){ let msg=error.message||String(error); try{ const ctx=await error.context?.json?.(); if(ctx?.error) msg=ctx.error; }catch(_){}
       $('aiA').textContent='Ошибка: '+msg; return; }
     if(data?.error){ $('aiA').textContent='Ошибка: '+data.error; return; }
@@ -1142,23 +1181,9 @@ async function askAI(mode){
 }
 $('btnAiAsk').onclick=()=>askAI('ask');
 $('btnAiInsight').onclick=()=>askAI('insight');
+try{ const savedM=localStorage.getItem('aiModel'); if(savedM&&[...$('aiModel').options].some(o=>o.value===savedM)) $('aiModel').value=savedM; }catch(_){}
+$('aiModel').addEventListener('change',()=>{ try{ localStorage.setItem('aiModel',$('aiModel').value); }catch(_){} });
 $('aiQ').addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); askAI('ask'); } });
-function spark(title, vals, hist){
-  const w=420,h=90,p=8; const n=vals.length;
-  const last=vals[n-1]||0;
-  if(n<2) return `<div><h3>${title}</h3><div class="hint" style="margin-top:6px">Появится после второго среза · сейчас: <b class="num" style="color:var(--ink)">${fmt(last)} ₸</b></div></div>`;
-  const min=Math.min(...vals,0), max=Math.max(...vals,1);
-  const X=i=>p+(w-2*p)*i/(n-1), Y=v=>h-p-(h-2*p)*((v-min)/((max-min)||1));
-  const pts=vals.map((v,i)=>`${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
-  const titles=hist.map((x,i)=>`${new Date(x.taken_at).toLocaleDateString('ru-RU')}: ${fmt(vals[i])} ₸`);
-  return `<div><h3>${title}</h3>
-  <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;margin-top:4px" role="img" aria-label="${title}: ${titles[titles.length-1]}">
-    <polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-    <circle cx="${X(n-1)}" cy="${Y(last)}" r="3.5" fill="var(--accent)"/>
-    ${vals.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="7" fill="transparent"><title>${titles[i]}</title></circle>`).join('')}
-  </svg>
-  <div class="row" style="justify-content:space-between;font-size:11.5px;color:var(--ink3)"><span>${new Date(hist[0].taken_at).toLocaleDateString('ru-RU')}</span><b class="num" style="color:var(--ink)">${fmt(last)} ₸</b></div></div>`;
-}
 async function callSync(mode){
   if(!sb||!sessionUser){ toast('Сначала войдите в кабинет'); return; }
   const btn = mode==='test'? $('btnTest1c') : $('btnSync1c');
