@@ -1163,10 +1163,12 @@ function renderMonths(){
 }
 
 /* ===== ИИ ===== */
-async function askAI(mode){
+let aiBaseQ=''; // исходный вопрос для кнопок-уточнений
+async function askAI(mode, composedQ){
   if(!sb||!sessionUser){ toast('Сначала войдите в кабинет'); return; }
-  const q = $('aiQ').value.trim();
+  const q = composedQ!=null? composedQ : $('aiQ').value.trim();
   if(mode==='ask' && !q){ toast('Введите вопрос'); return; }
+  if(mode==='ask' && composedQ==null) aiBaseQ=q;
   const btn = mode==='ask'? $('btnAiAsk') : $('btnAiInsight'); const orig=btn.textContent;
   btn.disabled=true; btn.textContent='Думаю…'; $('aiA').hidden=false; $('aiA').textContent='Анализирую данные…';
   try{
@@ -1175,9 +1177,20 @@ async function askAI(mode){
     if(error){ let msg=error.message||String(error); try{ const ctx=await error.context?.json?.(); if(ctx?.error) msg=ctx.error; }catch(_){}
       $('aiA').textContent='Ошибка: '+msg; return; }
     if(data?.error){ $('aiA').textContent='Ошибка: '+data.error; return; }
+    if(data?.clarify){ renderClarify(q, data.clarify); return; }
     $('aiA').textContent = data.answer || '(пусто)';
   }catch(e){ $('aiA').textContent='Ошибка: '+(e.message||e); }
   finally{ btn.disabled=false; btn.textContent=orig; }
+}
+function renderClarify(prevQ, c){
+  const box=$('aiA'); box.textContent=''; box.hidden=false;
+  const p=document.createElement('div'); p.textContent=(c.question||'Уточните запрос:'); p.style.marginBottom='8px'; box.appendChild(p);
+  const row=document.createElement('div'); row.className='row'; box.appendChild(row);
+  for(const opt of (c.options||[]).slice(0,6)){
+    const b=document.createElement('button'); b.className='btn small'; b.textContent=opt;
+    b.onclick=()=>askAI('ask', prevQ+' (уточнение: '+opt+')');
+    row.appendChild(b);
+  }
 }
 $('btnAiAsk').onclick=()=>askAI('ask');
 $('btnAiInsight').onclick=()=>askAI('insight');
