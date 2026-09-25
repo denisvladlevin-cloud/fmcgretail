@@ -158,6 +158,7 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
 #pnlTable th.sumcol{background:var(--panel2)}
 @media (max-width:700px){
   #dashTiles{grid-template-columns:repeat(2,1fr)!important}
+  #nbrkBar{display:none}
   .top .in{padding:8px 10px;gap:8px}
   h1{font-size:15px}
   .brand{gap:6px}
@@ -196,7 +197,7 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
 <body>
 
 <header class="top"><div class="in">
-  <div class="brand"><span class="mark">FMCG Retail</span></div>
+  <div class="brand"></div>
   <div class="tabs" role="tablist">
     <button role="tab" aria-selected="true" data-tab="calc">Расчёт</button>
     <button role="tab" aria-selected="false" data-tab="dash">Дашборд 1С</button>
@@ -205,6 +206,7 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
     <button role="tab" aria-selected="false" data-tab="settings">Настройки</button>
   </div>
   <div class="spacer"></div>
+  <span class="hint num" id="nbrkBar" title="Курсы Нацбанка РК на сегодня" style="white-space:nowrap"></span>
   <span class="badge acc" id="userChip" hidden></span>
   <button class="btn small" id="btnTheme" title="Переключить тему">Тема: авто</button>
   <button class="btn small" id="btnLogout" hidden>Выйти</button>
@@ -213,15 +215,13 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
 
 <div id="authOverlay" hidden style="position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px">
   <div class="card" style="max-width:400px;width:100%">
-    <div class="brand" style="margin-bottom:6px"><span class="mark">FMCG Retail</span></div>
-    <h2 style="margin-bottom:2px">Личный кабинет</h2>
-    <p class="hint" style="margin:0 0 14px">Калькулятор отпускной цены, журнал КП и договора — для сотрудников компании.</p>
+    <h2 style="margin-bottom:14px">Личный кабинет</h2>
     <form id="authForm">
       <label class="f"><span class="l">Email</span><input id="authEmail" type="email" autocomplete="username" required placeholder="denis@fmcgretail.kz"></label>
       <label class="f" style="margin-top:10px"><span class="l">Пароль</span><input id="authPass" type="password" autocomplete="current-password" required></label>
       <div id="authErr" style="color:var(--bad);font-size:12.5px;min-height:18px;margin-top:6px"></div>
       <button class="btn primary" id="authBtn" type="submit" style="width:100%;justify-content:center">Войти</button>
-      <p class="hint" style="margin:10px 0 0">Нет доступа? Аккаунты сотрудникам создаёт администратор (Денис) в панели Supabase — самостоятельной регистрации нет.</p>
+      <p class="hint" style="margin:10px 0 0">Нет доступа? Аккаунты сотрудникам создаёт администратор.</p>
     </form>
     <div id="authSetup" hidden>
       <p style="font-size:13px;color:var(--ink2)">Страница ещё не подключена к облачной базе. Откройте файл страницы и впишите <b>SUPABASE_URL</b> и <b>SUPABASE_KEY</b> из вашего проекта Supabase — пошагово описано в «Инструкции по установке».</p>
@@ -356,6 +356,23 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
 
 <!-- ================= DASHBOARD 1C ================= -->
 <section class="page" id="page-dash">
+  <div class="card" id="aiCard">
+    <h2>Спросить ИИ по данным</h2>
+    <p class="hint" style="margin:0 0 8px">Отвечает по выгрузке из 1С (обороты, покупатели, товары, фондирование). Например: «сколько кг картошки мы продали в этом году?», «какая эффективная ставка по займам MOST?», «сравни прибыль августа с июлем».</p>
+    <div class="row" style="align-items:stretch">
+      <textarea id="aiQ" rows="2" style="flex:1;min-width:200px" placeholder="Ваш вопрос…"></textarea>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label class="f"><span class="l">Модель ИИ</span><select id="aiModel">
+          <option value="groq">Groq · GPT-OSS 120B (бесплатно)</option>
+          <option value="openai">OpenAI · GPT-5.6</option>
+          <option value="gemini">Google · Gemini (бесплатно)</option>
+        </select></label>
+        <button class="btn primary" id="btnAiAsk">Спросить</button>
+        <button class="btn small" id="btnAiInsight">Краткое заключение</button>
+      </div>
+    </div>
+    <div id="aiA" hidden style="margin-top:10px;padding:12px;background:var(--panel2);border-radius:8px;font-size:13.5px;white-space:pre-wrap"></div>
+  </div>
   <div class="card">
     <div class="row" style="justify-content:space-between">
       <div><h2 style="margin-bottom:2px">Финансы из 1С</h2><span class="hint" id="dashWhen">срезов пока нет</span></div>
@@ -407,23 +424,6 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
     <p class="hint" id="cycleNote" style="margin:8px 0 0"></p>
   </div>
 
-  <div class="card" id="aiCard">
-    <h2>Спросить ИИ по данным</h2>
-    <p class="hint" style="margin:0 0 8px">Отвечает по выгрузке из 1С (обороты, покупатели, товары, фондирование). Например: «сколько кг картошки мы продали в этом году?», «какая эффективная ставка по займам MOST?», «сравни прибыль августа с июлем».</p>
-    <div class="row" style="align-items:stretch">
-      <textarea id="aiQ" rows="2" style="flex:1;min-width:200px" placeholder="Ваш вопрос…"></textarea>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <label class="f"><span class="l">Модель ИИ</span><select id="aiModel">
-          <option value="groq">Groq · GPT-OSS 120B (бесплатно)</option>
-          <option value="openai">OpenAI · GPT-5.6</option>
-          <option value="gemini">Google · Gemini (бесплатно)</option>
-        </select></label>
-        <button class="btn primary" id="btnAiAsk">Спросить</button>
-        <button class="btn small" id="btnAiInsight">Краткое заключение</button>
-      </div>
-    </div>
-    <div id="aiA" hidden style="margin-top:10px;padding:12px;background:var(--panel2);border-radius:8px;font-size:13.5px;white-space:pre-wrap"></div>
-  </div>
 </section>
 
 <!-- ================= JOURNAL ================= -->
@@ -816,9 +816,12 @@ function posDetail(p,c){
 }
 function renderPositions(res){
   $('posBody').innerHTML = res.rows.map(r=>posRow(r.p,r.c)).join('');
-  const tw=$('posTable').parentElement; document.documentElement.style.setProperty('--tw-w', tw.clientWidth+'px');
+  setTwW();
 }
-window.addEventListener('resize',()=>{const tw=$('posTable')&&$('posTable').parentElement; if(tw) document.documentElement.style.setProperty('--tw-w', tw.clientWidth+'px');});
+// ширина раскрытой позиции: обновляем только когда вкладка «Расчёт» видима,
+// иначе clientWidth=0 и вёрстка схлопывается в одну колонку
+function setTwW(){ const tw=$('posTable')&&$('posTable').parentElement; if(tw&&tw.clientWidth>50) document.documentElement.style.setProperty('--tw-w', tw.clientWidth+'px'); }
+window.addEventListener('resize',setTwW);
 function renderTiles(res){
   const mCls = res.margin<0?'bad':(res.margin<0.08?'warn':'good');
   $('tiles').innerHTML = `
@@ -952,6 +955,7 @@ document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
   if(b.dataset.tab==='contracts'){ renderContracts(); loadCloud(true).then(()=>{renderContracts();renderContractPick();}); }
   if(b.dataset.tab==='settings') fillSettings();
   if(b.dataset.tab==='dash'){ renderDash(); loadSnapshots().then(renderDash); }
+  if(b.dataset.tab==='calc') requestAnimationFrame(setTwW);
 });
 
 /* ============ дашборд 1С ============ */
@@ -1103,7 +1107,7 @@ function renderMonths(){
     ${trow('Себестоимость',r=>-r.cogs)}
     ${trow('Валовая прибыль',r=>r.revenue-r.cogs)}
     ${trow('Расходы (адм., реализация, %)',r=>-r.expenses)}
-    ${trow('в т.ч. вознаграждение (7310…)',r=>-r.interest)}
+    ${trow('в т.ч. %% (7310…)',r=>-r.interest)}
     ${trow('Прибыль до КПН',r=>r.profit,true)}
     <tr><td>Рентабельность</td>${rows.map(r=>pctCell(r)).join('')}${pctCell(tot,'sumcol')}${fc?pctCell(fc,'sumcol'):''}</tr>
   </tbody>`;
@@ -1118,48 +1122,81 @@ function renderMonths(){
   const qty = sumLists('qtySold');
   $('qtyItems').innerHTML = qty.length? qty.slice(0,12).map(r=>`<div class="row" style="justify-content:space-between;font-size:12.5px;padding:3px 0;border-bottom:1px dashed var(--line2)"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.name)}">${esc(r.name)}</span><b class="num">${fmt(r.amount)}</b></div>`).join('')+'<p class="hint" style="margin:6px 0 0">в единицах учёта товара (кг/шт)</p>' : '<span class="hint">нет данных (нужен справочник «Номенклатура» в составе REST — см. диагностику)</span>';
 
-  // --- фондирование: по кредиторам, 3050 = начисленные проценты (не тело долга) ---
+  // --- фондирование: ставка по дневным остаткам, задолженность на сегодня ---
   const days = range.reduce((a,m)=>a+daysInMonth(m.month),0);
-  const byParty={}; // кредитор -> {accs, bal (тело по месяцам), accr (3050 по месяцам)}
-  for(const mo of range){ const f=mo.funding||{}; for(const [acc,list] of Object.entries(f)) for(const it of list){
-    const p = byParty[it.name] = byParty[it.name]||{name:it.name,accs:new Set(),bal:{},accr:{}};
-    if(acc==='3050'){ p.accr[mo.month]=(p.accr[mo.month]||0)+it.amount; }
-    else { p.accs.add(acc); p.bal[mo.month]=(p.bal[mo.month]||0)+it.amount; }
-  } }
+  // остатки на сегодня — из последнего среза 1С (fallback: конец последнего месяца)
+  const nowF = (snapshots[0]?.data?.funding) || range[range.length-1].funding || {};
+  const byParty={}; // кредитор -> {accs, body (тело сегодня), accr (3050 сегодня)}
+  for(const [acc,list] of Object.entries(nowF)) for(const it of list){
+    const p = byParty[it.name] = byParty[it.name]||{name:it.name,accs:new Set(),body:0,accr:0};
+    if(acc==='3050') p.accr+=it.amount; else { p.accs.add(acc); p.body+=it.amount; }
+  }
+  // тенге-дни тела долга за период (считает sync v5 по датам проводок)
+  const fd={}; let fdTotal=0, hasFD=true;
+  for(const mo of range){
+    if(!mo.fundDays){ hasFD=false; break; }
+    for(const [nm,v] of Object.entries(mo.fundDays)) fd[nm]=(fd[nm]||0)+v;
+    fdTotal += mo.fundDaysTotal ?? Object.values(mo.fundDays).reduce((a,b)=>a+b,0);
+  }
   let totalInt = range.reduce((a,m)=>a+(m.pnl.interest||0),0);
   const intByParty={}; for(const mo of range) for(const it of (mo.interestByParty||[])) intByParty[it.name]=(intByParty[it.name]||0)+it.amount;
   let matchedInt=0;
-  const lastYM = range[range.length-1].month;
+  const fuzzy=(obj,name)=>Object.keys(obj).find(k=>k.toLowerCase().includes(name.toLowerCase().slice(0,10))||name.toLowerCase().includes(k.toLowerCase().slice(0,10)));
+  // кредиторы с процентами/долгом в периоде, но нулевым телом сегодня — тоже в таблицу
+  if(hasFD) for(const nm of Object.keys(fd)) if(!fuzzy(byParty,nm)&&fd[nm]>1000) byParty[nm]={name:nm,accs:new Set(),body:0,accr:0};
   const srcs = Object.values(byParty).map(s=>{
-    const vals = range.map(m=>s.bal[m.month]||0);
-    const avg = vals.reduce((a,v)=>a+v,0)/vals.length;
-    const last = vals[vals.length-1];
-    const accrLast = s.accr[lastYM]||0;
-    const key = Object.keys(intByParty).find(k=>k.toLowerCase().includes(s.name.toLowerCase().slice(0,10))||s.name.toLowerCase().includes(k.toLowerCase().slice(0,10)));
-    const interest = key? intByParty[key] : 0; if(key) matchedInt+=interest;
-    const rate = avg>1000&&interest>0? interest/avg*(365/days)*100 : null;
-    return {accs:[...s.accs].sort(),name:s.name,avg,last,accrLast,interest,rate};
-  }).filter(s=>Math.abs(s.avg)>=1||Math.abs(s.last)>=1||Math.abs(s.accrLast)>=1).sort((a,b)=>b.last-a.last);
-  const totAvg = srcs.reduce((a,s)=>a+s.avg,0), totLast = srcs.reduce((a,s)=>a+s.last,0), totAccr = srcs.reduce((a,s)=>a+s.accrLast,0);
-  const totRate = totAvg>1000&&totalInt>0? totalInt/totAvg*(365/days)*100 : null;
+    const ik = fuzzy(intByParty,s.name);
+    const interest = ik? intByParty[ik] : 0; if(ik) matchedInt+=interest;
+    const fk = hasFD? fuzzy(fd,s.name) : null;
+    const dd = fk? fd[fk] : 0;
+    const rate = hasFD&&dd>1000&&interest>0? interest/dd*365*100 : null;
+    return {accs:[...s.accs].sort(),name:s.name,body:s.body,accr:s.accr,interest,rate};
+  }).filter(s=>Math.abs(s.body)>=1||Math.abs(s.accr)>=1||Math.abs(s.interest)>=1).sort((a,b)=>b.body-a.body);
+  const totBody = srcs.reduce((a,s)=>a+s.body,0), totAccr = srcs.reduce((a,s)=>a+s.accr,0);
+  const totRate = hasFD&&fdTotal>1000&&totalInt>0? totalInt/fdTotal*365*100 : null;
   const accTag = a => ({'3010':'займ кр.','3020':'займ','3380':'% к оплате','3387':'фин. помощь','4010':'займ долгоср.','4030':'кредит долгоср.'}[a]||a);
-  $('fundTable').innerHTML = `<thead><tr><th>Кредитор</th><th>Счета</th><th class="r">Тело долга на конец</th><th class="r">Начисл. % (3050)</th><th class="r">Средний остаток тела</th><th class="r">Вознаграждение за период</th><th class="r">Эфф. ставка, годовых</th></tr></thead><tbody>
-    ${srcs.map(s=>`<tr><td>${esc(s.name)}</td><td>${s.accs.map(a=>`<span class="badge">${a} · ${accTag(a)}</span>`).join(' ')}</td><td class="r">${fz(s.last,0)}</td><td class="r">${s.accrLast?fz(s.accrLast,0):'<span class="hint">—</span>'}</td><td class="r">${fz(s.avg,0)}</td><td class="r">${fz(s.interest,0)}</td><td class="r">${s.rate!=null? '<b>'+s.rate.toFixed(1).replace('.',',')+'%</b>' : '<span class="hint">—</span>'}</td></tr>`).join('')}
-    <tr style="border-top:2px solid var(--line)"><td><b>Итого долговое фондирование</b></td><td></td><td class="r"><b>${fmt(totLast)}</b></td><td class="r"><b>${fmt(totAccr)}</b></td><td class="r"><b>${fmt(totAvg)}</b></td><td class="r"><b>${fmt(totalInt)}</b></td><td class="r"><b>${totRate!=null? totRate.toFixed(1).replace('.',',')+'%':'—'}</b></td></tr>
+  $('fundTable').innerHTML = `<thead><tr><th>Кредитор</th><th>Счета</th><th class="r">Остаток тела на сегодня</th><th class="r">Начисл. %% (3050)</th><th class="r">%% за период</th><th class="r">Эфф. ставка, годовых</th></tr></thead><tbody>
+    ${srcs.map(s=>`<tr><td>${esc(s.name)}</td><td>${s.accs.map(a=>`<span class="badge">${a} · ${accTag(a)}</span>`).join(' ')}</td><td class="r">${fz(s.body,0)}</td><td class="r">${s.accr?fz(s.accr,0):'<span class="hint">—</span>'}</td><td class="r">${fz(s.interest,0)}</td><td class="r">${s.rate!=null? '<b>'+s.rate.toFixed(1).replace('.',',')+'%</b>' : '<span class="hint">—</span>'}</td></tr>`).join('')}
+    <tr style="border-top:2px solid var(--line)"><td><b>Итого долговое фондирование</b></td><td></td><td class="r"><b>${fmt(totBody)}</b></td><td class="r"><b>${fmt(totAccr)}</b></td><td class="r"><b>${fmt(totalInt)}</b></td><td class="r"><b>${totRate!=null? totRate.toFixed(1).replace('.',',')+'%':'—'}</b></td></tr>
   </tbody>`;
-  $('fundNote').textContent = 'Эфф. ставка = вознаграждение (7310/7320/7340) за период ÷ средний остаток тела долга × годовой коэффициент. Тело долга — счета 3010/3020/3380/4010/4030 и финпомощь 3387 (вся финпомощь процентная). Начисленные, но не выплаченные проценты (счёт 3050) в тело долга не входят и показаны отдельной колонкой. '+(totalInt-matchedInt>1? 'Часть вознаграждения ('+fmt(totalInt-matchedInt)+' ₸) 1С не привязала к кредитору — она учтена только в строке «Итого».':'');
+  $('fundNote').textContent = 'Эфф. ставка = %% (7310/7320/7340) за выбранный период ÷ средний ДНЕВНОЙ остаток тела долга (по датам проводок) × 365. Тело — счета 3010/3020/3380/4010/4030 и финпомощь 3387; начисленные %% (3050) в тело не входят. Остатки — на дату последнего обновления из 1С. '
+    + (!hasFD? 'Для расчёта ставки по дням нажмите «Обновить из 1С» — история пересчитается автоматически. ' : '')
+    + (totalInt-matchedInt>1? 'Часть %% ('+fmt(totalInt-matchedInt)+' ₸) 1С не привязала к кредитору — она учтена только в строке «Итого».':'');
 
-  // --- операционный цикл ---
-  const avgB = k => range.reduce((a,m)=>a+((m.endBalances||{})[k]||0),0)/range.length;
-  const revSum = rows.reduce((a,r)=>a+r.revenue,0), cogsSum=rows.reduce((a,r)=>a+r.cogs,0), purchSum=rows.reduce((a,r)=>a+r.purchases,0);
-  const dso = revSum>0? avgB('ar')/revSum*days : null;
-  const dio = cogsSum>0? avgB('inventory')/cogsSum*days : null;
-  const dpo = purchSum>0? avgB('ap')/purchSum*days : null;
-  const dAdv = purchSum>0? avgB('advOut')/purchSum*days : null;
+  // --- операционный цикл: с начала года по последний месяц с данными ---
+  const lastMo = finMonths[finMonths.length-1];
+  const yr = lastMo.month.slice(0,4);
+  const ytd = finMonths.filter(m=>m.month.startsWith(yr));
+  const prevDec = finMonths.find(m=>m.month === (String(+yr-1))+'-12');
+  const openB = (prevDec||ytd[0]).endBalances||{};
+  const lastB = lastMo.endBalances||{};
+  const ydays = ytd.reduce((a,m)=>a+daysInMonth(m.month),0);
+  const SY=f=>ytd.reduce((a,m)=>a+(f(m)||0),0);
+  const revY=SY(m=>m.pnl.revenue), cogsY=SY(m=>m.pnl.cogs), purchY=SY(m=>m.purchases);
+  const avgB = k => (((openB[k]||0)+(lastB[k]||0))/2);
+  const dso = revY>0? avgB('ar')/revY*ydays : null;
+  const dio = cogsY>0? avgB('inventory')/cogsY*ydays : null;
+  const dpo = purchY>0? avgB('ap')/purchY*ydays : null;
+  const dAdv = purchY>0? avgB('advOut')/purchY*ydays : null;
   const ccc = (dso??0)+(dio??0)+(dAdv??0)-(dpo??0);
   const ct=(t,v,hint,cls)=>`<div class="tile ${cls||''}"><div class="k">${t}</div><div class="v small">${v==null?'—':Math.round(v)+' дн.'}</div><div class="hint">${hint}</div></div>`;
   $('cycleTiles').innerHTML = ct('Дебиторка (DSO)',dso,'клиенты платят через')+ct('Товар (DIO)',dio,'товар лежит')+ct('Авансы выданные',dAdv,'деньги у поставщиков')+ct('Кредиторка (DPO)',dpo,'мы платим через','good')+ct('Кассовый цикл',ccc,'деньги заморожены на', ccc>60?'warn':'');
-  $('cycleNote').textContent = `Кассовый цикл = DSO + DIO + авансы − DPO = ${dso!=null?Math.round(dso):'—'} + ${dio!=null?Math.round(dio):'—'} + ${dAdv!=null?Math.round(dAdv):'—'} − ${dpo!=null?Math.round(dpo):'—'} ≈ ${Math.round(ccc)} дн.: столько в среднем проходит от оплаты поставщику до получения денег от клиента. На каждый день цикла нужна оборотка ≈ ${fmt((cogsSum+0)/days)} ₸/день себестоимости.`;
+  $('cycleNote').textContent = `Считается по итогам года: обороты с начала ${yr} года по ${mLabel(lastMo.month)}, средние остатки = (на начало года + на сегодня) ÷ 2. Кассовый цикл = DSO + DIO + авансы − DPO = ${dso!=null?Math.round(dso):'—'} + ${dio!=null?Math.round(dio):'—'} + ${dAdv!=null?Math.round(dAdv):'—'} − ${dpo!=null?Math.round(dpo):'—'} ≈ ${Math.round(ccc)} дн. На каждый день цикла нужна оборотка ≈ ${fmt(cogsY/ydays)} ₸/день себестоимости.`;
+}
+
+/* ===== курсы НБРК в шапке ===== */
+async function loadNbrk(){
+  if(!sb||!sessionUser) return;
+  const key='nbrk:'+new Date().toISOString().slice(0,10);
+  try{ const c=localStorage.getItem(key); if(c){ renderNbrk(JSON.parse(c)); return; } }catch(_){}
+  try{
+    const {data} = await sb.functions.invoke('sync-1c',{body:{mode:'rates'}});
+    if(data?.rates){ renderNbrk(data.rates); try{ localStorage.setItem(key, JSON.stringify(data.rates)); }catch(_){} }
+  }catch(_){ /* курсы не критичны */ }
+}
+function renderNbrk(r){
+  const f=v=>v!=null? (+v).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—';
+  $('nbrkBar').textContent = `НБРК: $ ${f(r.USD)} · € ${f(r.EUR)} · ¥ ${f(r.CNY)} · ₽ ${f(r.RUB)}`;
 }
 
 /* ===== ИИ ===== */
@@ -1308,6 +1345,7 @@ async function afterLogin(){
   $('userChip').textContent = sessionUser.email; $('userChip').hidden=false; $('btnLogout').hidden=false;
   $('storeExplain').textContent = 'Вы вошли как '+sessionUser.email+'. Журнал, договора и настройки общие: хранятся в облачной базе и видны всем сотрудникам с доступом. Локальная копия в браузере — на случай отсутствия интернета.';
   await loadCloud(true);
+  loadNbrk();
   loadSnapshots().then(()=>{ if(document.querySelector('#page-dash.active')) renderDash(); });
   renderAll(); renderContracts(); renderJournal(); fillSettings();
   $('jcount').textContent=journal.length; $('ccount').textContent=contracts.length;
