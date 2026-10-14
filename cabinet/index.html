@@ -359,12 +359,6 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
         <button class="btn small" id="btnTest1c">Диагностика</button>
       </div>
     </div>
-    <div class="row" style="margin-top:10px;gap:8px;align-items:flex-end;flex-wrap:wrap">
-      <label class="f" style="min-width:120px"><span class="l">Сверка счёта</span><input id="acctCode" placeholder="7310" style="width:110px"></label>
-      <label class="f" style="min-width:120px"><span class="l">Месяц</span><input id="acctMonth" type="month"></label>
-      <button class="btn small" id="btnAcct">Показать проводки из 1С</button>
-      <span class="hint">покажет все проводки по счёту за месяц прямо из 1С — для сверки цифр дашборда</span>
-    </div>
     <p class="hint" id="dashEmpty" style="margin:10px 0 0">Нажмите «Обновить из 1С» — кабинет заберёт остатки по счетам (деньги, дебиторка, авансы, кредиторка, ТМЦ, займы) и сохранит срез. История срезов копится, и на дашборде появится динамика. Если что-то не так — «Диагностика» покажет, на каком шаге затык.</p>
     <pre id="dashDiag" hidden style="margin:10px 0 0;padding:10px;background:var(--panel2);border-radius:8px;font-size:11.5px;white-space:pre-wrap;max-height:260px;overflow:auto"></pre>
   </div>
@@ -1180,31 +1174,23 @@ function spark(title, vals, hist){
   </svg>
   <div class="row" style="justify-content:space-between;font-size:11.5px;color:var(--ink3)"><span>${new Date(hist[0].taken_at).toLocaleDateString('ru-RU')}</span><b class="num" style="color:var(--ink)">${fmt(last)} ₸</b></div></div>`;
 }
-async function callSync(mode, extra){
+async function callSync(mode){
   if(!sb||!sessionUser){ toast('Сначала войдите в кабинет'); return; }
-  const btn = mode==='test'? $('btnTest1c') : (mode==='acct'? $('btnAcct') : $('btnSync1c'));
-  const orig=btn.textContent; btn.disabled=true; btn.textContent = mode==='sync'?'Забираем данные из 1С…':'Проверяем…';
+  const btn = mode==='test'? $('btnTest1c') : $('btnSync1c');
+  const orig=btn.textContent; btn.disabled=true; btn.textContent = mode==='test'?'Проверяем…':'Забираем данные из 1С…';
   $('dashDiag').hidden=true;
   try{
-    const {data,error} = await sb.functions.invoke('sync-1c',{body:{mode, ...(extra||{})}});
+    const {data,error} = await sb.functions.invoke('sync-1c',{body:{mode}});
     if(error){ let msg=error.message||String(error); try{ const ctx=await error.context?.json?.(); if(ctx?.error) msg=ctx.error; }catch(_){}
       $('dashDiag').hidden=false; $('dashDiag').textContent='Ошибка: '+msg+'\n\nЧастые причины: функция sync-1c не создана; не заданы секреты ODATA_*; у пользователя 1С нет доступа к OData (см. инструкцию).'; return; }
     if(data?.error){ $('dashDiag').hidden=false; $('dashDiag').textContent='Ошибка: '+JSON.stringify(data,null,2); return; }
     if(mode==='test'){ $('dashDiag').hidden=false; $('dashDiag').textContent='Подключение к 1С работает:\n'+JSON.stringify(data,null,2); toast('Диагностика успешна'); }
-    else if(mode==='acct'){
-      const lines = [`Счёт ${data.account} за ${data.month}: оборот Дт ${fmt(data.debit)} ₸, оборот Кт ${fmt(data.credit)} ₸, проводок ${data.totalRows}${data.negativeRows? ', ИЗ НИХ С МИНУСОМ (сторно): '+data.negativeRows : ''}`, ''];
-      for(const r of data.rows) lines.push(`${r.side}  ${r.dr} → ${r.cr}   ${fmt(r.sum).padStart(16)} ₸   ${r.side==='Дт'? (r.subDr||r.drName) : (r.subCr||r.crName)}${r.side==='Дт'&&r.subCr? '  ← '+r.subCr : ''}${r.side==='Кт'&&r.subDr? '  → '+r.subDr : ''}`);
-      if(data.totalRows>data.rows.length) lines.push(`… показаны первые ${data.rows.length}`);
-      lines.push('', 'Дашборд считает проценты (7310) как сумму проводок по Дт 7310 за месяц, с учётом знака. Если есть строки с минусом — это сторно в 1С.');
-      $('dashDiag').hidden=false; $('dashDiag').textContent=lines.join('\n');
-    }
     else { toast('Срез из 1С сохранён'); await loadSnapshots(); renderDash(); }
   }catch(e){ $('dashDiag').hidden=false; $('dashDiag').textContent='Ошибка: '+(e.message||e); }
   finally{ btn.disabled=false; btn.textContent=orig; }
 }
 $('btnSync1c').onclick=()=>callSync('sync');
 $('btnTest1c').onclick=()=>callSync('test');
-$('btnAcct').onclick=()=>{ const account=$('acctCode').value.trim(), month=$('acctMonth').value; if(!account||!month){ toast('Укажите счёт и месяц'); return; } callSync('acct',{account,month}); };
 
 /* ============ journal ============ */
 function renderJournal(){
