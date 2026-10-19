@@ -381,12 +381,6 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
         <button class="btn small" id="btnTest1c">Диагностика</button>
       </div>
     </div>
-    <div class="row" style="margin-top:10px;gap:8px;align-items:flex-end;flex-wrap:wrap">
-      <label class="f" style="min-width:120px"><span class="l">Сверка счёта</span><input id="acctCode" placeholder="7310" style="width:110px"></label>
-      <label class="f" style="min-width:120px"><span class="l">Месяц</span><input id="acctMonth" type="month"></label>
-      <button class="btn small" id="btnAcct">Показать проводки из 1С</button>
-      <span class="hint">все проводки по счёту за месяц прямо из 1С — для сверки цифр дашборда</span>
-    </div>
     <p class="hint" id="dashEmpty" style="margin:10px 0 0">Нажмите «Обновить из 1С» — кабинет заберёт остатки по счетам (деньги, дебиторка, авансы, кредиторка, ТМЦ, займы) и сохранит срез. История срезов копится, и на дашборде появится динамика. Если что-то не так — «Диагностика» покажет, на каком шаге затык.</p>
     <pre id="dashDiag" hidden style="margin:10px 0 0;padding:10px;background:var(--panel2);border-radius:8px;font-size:11.5px;white-space:pre-wrap;max-height:260px;overflow:auto"></pre>
   </div>
@@ -395,6 +389,12 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
       <div class="tiles" id="dashTiles" style="grid-template-columns:repeat(4,1fr)"></div>
     </div>
     <div class="grid g3" style="margin-top:14px;align-items:start" id="dashTables"></div>
+    <div class="card" id="arScheduleCard" style="margin-top:14px" hidden>
+      <div class="row" style="justify-content:space-between;align-items:baseline"><h2>Ожидаемые поступления от покупателей по неделям</h2><span class="hint" id="arSchedHint"></span></div>
+      <div id="arSchedChart" style="margin-top:8px"></div>
+      <div class="tw" style="margin-top:10px"><table id="arSchedTable"></table></div>
+      <p class="hint" style="margin:8px 0 0">Срок оплаты = дата отгрузки + отсрочка из договора с покупателем (вкладка «Договора»); если договора нет — отсрочка по умолчанию из настроек. Оплаты разносятся на отгрузки по порядку (FIFO). «Просрочено» — срок уже прошёл, деньги не пришли.</p>
+    </div>
   </div>
 
   <!-- ===== помесячная аналитика ===== -->
@@ -1015,8 +1015,102 @@ function renderDash(){
       </div>`).join('')}
       <div class="row" style="justify-content:space-between;border-top:1px solid var(--line2);padding-top:6px;margin-top:8px;font-size:12.5px"><b>Итого</b><b class="num">${fmt(totalV)} ₸</b></div></div>`;
   };
-  $('dashTables').innerHTML = tbl('ar','Кто нам должен','var(--warn)') + tbl('advOut','Авансы поставщикам','var(--accent)') + tbl('ap','Мы должны поставщикам','var(--ink3)') + tbl('debt','Займы, кредиты и финпомощь (вкл. 3387)','var(--bad)');
+  const arSched = buildArSchedule(P.ar||[]);
+  $('dashTables').innerHTML = (arSched? arTable(arSched, (s.data.totals||{}).ar) : tbl('ar','Кто нам должен','var(--warn)')) + tbl('advOut','Авансы поставщикам','var(--accent)') + tbl('ap','Мы должны поставщикам','var(--ink3)') + tbl('debt','Займы, кредиты и финпомощь (вкл. 3387)','var(--bad)');
+  renderArSchedule(arSched);
   renderMonths();
+}
+
+/* ===== дебиторка по отгрузкам и график поступлений ===== */
+const dayKZ = () => new Date(Date.now()+5*3600e3).toISOString().slice(0,10);
+const addDays = (iso,n) => { const d=new Date(iso+'T00:00:00Z'); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); };
+const diffDays = (a,b) => Math.round((new Date(b+'T00:00:00Z')-new Date(a+'T00:00:00Z'))/864e5);
+const dRu = iso => { const [y,m,d]=iso.split('-'); return `${d}.${m}.${y.slice(2)}`; };
+function deferFor(name){
+  const nm=name.toLowerCase();
+  const c=contracts.find(x=>x.type==='sell'&&x.party&&(x.party.toLowerCase().includes(nm.slice(0,12))||nm.includes(x.party.toLowerCase().slice(0,12))));
+  if(c&&c.defer!=null&&c.defer!=='') return {days:n(c.defer), src:'договор №'+(c.number||'')};
+  return {days:n(settings.defer??30), src:'по умолчанию'};
+}
+// Разносит оплаты по отгрузкам (FIFO) по каждому покупателю. Возвращает null, если история отгрузок ещё не выгружена.
+function buildArSchedule(arParties){
+  if(!finMonths.length || !finMonths.some(m=>m.arShip)) return null;
+  const ships={}, pays={};
+  const push=(o,p,d,a)=>{ (o[p]=o[p]||[]).push({d,a}); };
+  const first=finMonths[0];
+  for(const r of (first.arOpening||[])) if(r.amount>0) push(ships,r.name,first.month+'-01',r.amount); else if(r.amount<0) push(pays,r.name,first.month+'-01',-r.amount);
+  for(const m of finMonths){ for(const x of (m.arShip||[])) push(ships,x.p,x.d,x.a); for(const x of (m.arPay||[])) push(pays,x.p,x.d,x.a); }
+  const today=dayKZ(); const out=[];
+  const names=new Set([...Object.keys(ships),...Object.keys(pays),...arParties.map(r=>r.name)]);
+  for(const name of names){
+    const sh=(ships[name]||[]).slice().sort((a,b)=>a.d<b.d?-1:1).map(x=>({date:x.d,amount:x.a,paid:0}));
+    let credit=0; // переплата/аванс покупателя
+    const py=(pays[name]||[]).slice().sort((a,b)=>a.d<b.d?-1:1);
+    let i=0;
+    for(const p of py){ let rest=p.a; while(rest>0.005){ while(i<sh.length && sh[i].amount-sh[i].paid<=0.005) i++; if(i>=sh.length){ credit+=rest; rest=0; break; } const open=sh[i].amount-sh[i].paid; const take=Math.min(open,rest); sh[i].paid+=take; rest-=take; } }
+    // отрицательные отгрузки (сторно) просто уменьшают список
+    const {days,src}=deferFor(name);
+    const open=sh.filter(x=>x.amount-x.paid>0.5).map(x=>{ const due=addDays(x.date,days); return {date:x.date,amount:x.amount,paid:x.paid,open:Math.round((x.amount-x.paid)*100)/100,due,late:diffDays(due,today)}; });
+    const total=open.reduce((a,x)=>a+x.open,0)-credit;
+    const snap=(arParties.find(r=>r.name===name)||{}).amount||0;
+    if(Math.abs(total)<1 && Math.abs(snap)<1) continue;
+    out.push({name,defer:days,deferSrc:src,open,credit:Math.round(credit),total:Math.round(total),snap:Math.round(snap),diff:Math.round(snap-total)});
+  }
+  out.sort((a,b)=>b.total-a.total);
+  return {parties:out, today};
+}
+function arTable(S, totalAr){
+  const rows=S.parties.filter(p=>p.total>0.5||p.snap>0.5);
+  if(!rows.length) return '';
+  const maxT=Math.max(...rows.map(p=>Math.abs(p.snap||p.total)),1);
+  const st = x => x.late>0? `<span style="color:var(--bad)">просрочено ${x.late} дн.</span>` : (x.late===0? `<span style="color:var(--warn)">сегодня</span>` : `<span class="hint">через ${-x.late} дн.</span>`);
+  const body = rows.map(p=>{
+    const shown=p.open.slice(0,8), more=p.open.length-shown.length;
+    return `<div style="margin:9px 0 4px">
+      <div class="row" style="justify-content:space-between;gap:8px;font-size:12.5px"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(p.name)}"><b>${esc(p.name)}</b> <span class="hint">· отсрочка ${p.defer} дн. (${esc(p.deferSrc)})</span></span><b class="num">${fmt(p.snap||p.total)}</b></div>
+      <div style="height:5px;border-radius:3px;background:var(--panel2);margin-top:3px"><div style="height:5px;border-radius:3px;background:var(--warn);width:${Math.abs(p.snap||p.total)/maxT*100}%"></div></div>
+      <table style="width:100%;font-size:11.5px;margin-top:4px;border-collapse:collapse">${shown.map(x=>`<tr><td style="padding:2px 0;color:var(--ink3)">отгрузка ${dRu(x.date)}</td><td class="r num" style="padding:2px 0">${fmt(x.open)}${x.paid>0.5?`<span class="hint"> из ${fmt(x.amount)}</span>`:''}</td><td style="padding:2px 0 2px 8px;white-space:nowrap">срок ${dRu(x.due)} · ${st(x)}</td></tr>`).join('')}
+      ${more>0?`<tr><td colspan="3" class="hint" style="padding:2px 0">… ещё ${more} отгрузок</td></tr>`:''}
+      ${p.credit>0?`<tr><td colspan="3" class="hint" style="padding:2px 0">переплата / аванс покупателя: −${fmt(p.credit)}</td></tr>`:''}
+      ${Math.abs(p.diff)>1?`<tr><td colspan="3" class="hint" style="padding:2px 0;color:var(--warn)">расхождение с остатком 1С: ${fmt(p.diff)} ₸ (нажмите «Обновить из 1С»)</td></tr>`:''}
+      </table></div>`;
+  }).join('');
+  const tot = totalAr ?? rows.reduce((a,p)=>a+p.snap,0);
+  const overdue = rows.reduce((a,p)=>a+p.open.filter(x=>x.late>0).reduce((b,x)=>b+x.open,0),0);
+  return `<div class="card" style="margin-top:0"><h2>Кто нам должен</h2>${body}
+    <div class="row" style="justify-content:space-between;border-top:1px solid var(--line2);padding-top:6px;margin-top:8px;font-size:12.5px"><b>Итого</b><b class="num">${fmt(tot)} ₸</b></div>
+    ${overdue>0.5?`<div class="row" style="justify-content:space-between;font-size:12.5px;color:var(--bad)"><span>в т.ч. просрочено</span><b class="num">${fmt(overdue)} ₸</b></div>`:''}</div>`;
+}
+function renderArSchedule(S){
+  const card=$('arScheduleCard'); if(!S){ card.hidden=true; return; }
+  const items=[]; for(const p of S.parties) for(const x of p.open) items.push({name:p.name, ...x});
+  if(!items.length){ card.hidden=true; return; }
+  card.hidden=false;
+  // понедельник текущей недели
+  const t=new Date(S.today+'T00:00:00Z'); const dow=(t.getUTCDay()+6)%7; const mon0=addDays(S.today,-dow);
+  const WEEKS=8; const buckets=[{key:'overdue',label:'Просрочено',from:null,to:addDays(S.today,-1),sum:0,by:{}}];
+  for(let i=0;i<WEEKS;i++){ const from=addDays(mon0,7*i), to=addDays(from,6); buckets.push({key:'w'+i,label:(i===0?'Эта неделя':(i===1?'След. неделя':dRu(from)+'–'+dRu(to))),sub:dRu(from)+'–'+dRu(to),from,to,sum:0,by:{}}); }
+  buckets.push({key:'later',label:'Позже',from:addDays(mon0,7*WEEKS),to:null,sum:0,by:{}});
+  for(const x of items){
+    let b = x.late>0 ? buckets[0] : (buckets.find(bk=>bk.from&&bk.to&&x.due>=bk.from&&x.due<=bk.to) || buckets[buckets.length-1]);
+    if(x.late<=0 && x.due<mon0) b=buckets[1];
+    b.sum+=x.open; b.by[x.name]=(b.by[x.name]||0)+x.open;
+  }
+  const total=items.reduce((a,x)=>a+x.open,0);
+  $('arSchedHint').textContent=`всего к получению ${fmt(total)} ₸ · на ${dRu(S.today)}`;
+  const w=760,h=170,p=26,n=buckets.length, max=Math.max(...buckets.map(b=>b.sum),1), step=(w-2*p)/n, bw=Math.min(56,step*0.62), scale=(h-2*p-14)/max;
+  $('arSchedChart').innerHTML=`<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto" role="img" aria-label="Ожидаемые поступления по неделям">
+    <line x1="${p}" y1="${h-p}" x2="${w-p}" y2="${h-p}" stroke="var(--line)" stroke-width="1"/>
+    ${buckets.map((b,i)=>{ const x=p+step*i+(step-bw)/2, hh=b.sum*scale, y=h-p-hh; const col=b.key==='overdue'?'var(--bad)':(b.key==='later'?'var(--ink3)':'var(--accent)');
+      return `<g><rect x="${x}" y="${y}" width="${bw}" height="${Math.max(hh,1)}" rx="4" fill="${col}"><title>${b.label}: ${fmt(b.sum)} ₸</title></rect>
+      <text x="${x+bw/2}" y="${h-8}" text-anchor="middle" font-size="9.5" fill="var(--ink3)">${b.key.startsWith('w')&&i>2? b.sub.split('–')[0] : b.label}</text>
+      ${b.sum>0?`<text x="${x+bw/2}" y="${y-4}" text-anchor="middle" font-size="10" font-family="var(--ff-mono)" fill="var(--ink2)">${fmtM(b.sum)}</text>`:''}</g>`; }).join('')}
+  </svg>`;
+  let cum=0;
+  $('arSchedTable').innerHTML=`<thead><tr><th>Неделя</th><th class="r">Ожидается, ₸</th><th class="r">Нарастающим</th><th>Кто платит</th></tr></thead><tbody>
+    ${buckets.filter(b=>b.sum>0.5).map(b=>{ cum+=b.sum; const who=Object.entries(b.by).sort((a,c)=>c[1]-a[1]).map(([nm2,v])=>`${esc(nm2)} <span class="num">${fmt(v)}</span>`).join(' · ');
+      return `<tr><td>${b.key==='overdue'?'<b style="color:var(--bad)">Просрочено</b>':`<b>${b.label}</b>${b.sub?` <span class="hint">${b.sub}</span>`:''}`}</td><td class="r num"><b>${fmt(b.sum)}</b></td><td class="r num">${fmt(cum)}</td><td style="font-size:12px">${who}</td></tr>`; }).join('')}
+  </tbody>`;
 }
 
 /* ===== помесячная аналитика ===== */
@@ -1249,7 +1343,7 @@ $('aiModel').addEventListener('change',()=>{ try{ localStorage.setItem('aiModel'
 $('aiQ').addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); askAI('ask'); } });
 async function callSync(mode, extra){
   if(!sb||!sessionUser){ toast('Сначала войдите в кабинет'); return; }
-  const btn = mode==='test'? $('btnTest1c') : (mode==='acct'? $('btnAcct') : $('btnSync1c'));
+  const btn = mode==='test'? $('btnTest1c') : $('btnSync1c');
   const orig=btn.textContent; btn.disabled=true; btn.textContent = mode==='sync'?'Забираем данные из 1С…':'Проверяем…';
   $('dashDiag').hidden=true;
   try{
@@ -1258,20 +1352,12 @@ async function callSync(mode, extra){
       $('dashDiag').hidden=false; $('dashDiag').textContent='Ошибка: '+msg+'\n\nЧастые причины: функция sync-1c не создана; не заданы секреты ODATA_*; у пользователя 1С нет доступа к OData (см. инструкцию).'; return; }
     if(data?.error){ $('dashDiag').hidden=false; $('dashDiag').textContent='Ошибка: '+JSON.stringify(data,null,2); return; }
     if(mode==='test'){ $('dashDiag').hidden=false; $('dashDiag').textContent='Подключение к 1С работает:\n'+JSON.stringify(data,null,2); toast('Диагностика успешна'); }
-    else if(mode==='acct'){
-      const lines = [`Счёт ${data.account} за ${data.month}: оборот Дт ${fmt(data.debit)} ₸, оборот Кт ${fmt(data.credit)} ₸, проводок ${data.totalRows}${data.negativeRows? ', ИЗ НИХ С МИНУСОМ (сторно): '+data.negativeRows : ''}`, ''];
-      for(const r of data.rows) lines.push(`${r.date}  ${r.side}  ${r.dr} → ${r.cr}  ${fmt(r.sum).padStart(16)} ₸   ${r.side==='Дт'? (r.subDr||r.drName) : (r.subCr||r.crName)}${r.side==='Дт'&&r.subCr? '  ← '+r.subCr : ''}${r.side==='Кт'&&r.subDr? '  → '+r.subDr : ''}`);
-      if(data.totalRows>data.rows.length) lines.push(`… показаны первые ${data.rows.length}`);
-      lines.push('', 'Дашборд считает проценты (7310) как сумму проводок по Дт 7310 за месяц с учётом знака. Строки с минусом — сторно в 1С.');
-      $('dashDiag').hidden=false; $('dashDiag').textContent=lines.join('\n');
-    }
     else { toast('Срез из 1С сохранён'); await loadSnapshots(); renderDash(); }
   }catch(e){ $('dashDiag').hidden=false; $('dashDiag').textContent='Ошибка: '+(e.message||e); }
   finally{ btn.disabled=false; btn.textContent=orig; }
 }
 $('btnSync1c').onclick=()=>callSync('sync');
 $('btnTest1c').onclick=()=>callSync('test');
-$('btnAcct').onclick=()=>{ const account=$('acctCode').value.trim(), month=$('acctMonth').value; if(!account||!month){ toast('Укажите счёт и месяц'); return; } callSync('acct',{account,month}); };
 
 /* ============ journal ============ */
 function renderJournal(){
