@@ -315,6 +315,9 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
       <button class="btn" id="btnPdf">PDF</button>
     </div>
     <div class="row" style="margin-top:6px;gap:6px">
+      <button class="btn small" id="btnSaveRates" title="Пересчитать это КП по курсам из «Настроек» и сохранить в журнал">Сохранить с новыми курсами валют</button>
+    </div>
+    <div class="row" style="margin-top:6px;gap:6px">
       <button class="btn small" id="btnJson">Выгрузить JSON</button>
       <button class="btn small" id="btnCsv">CSV позиций</button>
       <label class="row" style="gap:4px;font-size:12px;color:var(--ink2)"><input type="checkbox" id="pdfClient"> PDF для клиента (без себестоимости)</label>
@@ -532,6 +535,18 @@ details.help p{font-size:12.5px;color:var(--ink2);margin:6px 0;max-width:70ch}
 <datalist id="customers"></datalist>
 <div id="printArea"></div>
 <div class="toast" id="toast"></div>
+<div id="ratesModal" hidden style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px">
+  <div class="card" style="max-width:460px;width:100%;margin:0">
+    <h2>Пересчёт КП по новым курсам</h2>
+    <p id="ratesModalText" style="margin:8px 0 6px;font-size:13.5px"></p>
+    <div class="tw"><table id="ratesModalTable" style="width:100%"></table></div>
+    <p class="hint" style="margin:8px 0 0">Курсы берутся из раздела «Настройки». Все позиции и итоги КП пересчитаются, расчёт будет сохранён в журнал с этими курсами.</p>
+    <div class="row" style="margin-top:12px;gap:6px;justify-content:flex-end">
+      <button class="btn ghost" id="ratesModalNo">Отмена</button>
+      <button class="btn primary" id="ratesModalYes">Да, сохранить</button>
+    </div>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
 <script>
@@ -1397,12 +1412,35 @@ function migrateKP(k){
   if(!k.terms.balanceMode) k.terms.balanceMode='days';
   return k;
 }
-$('btnSave').onclick = async ()=>{
+async function saveKpToJournal(msg){
   kp.savedAt=new Date().toISOString();
   if(sessionUser) kp._by=sessionUser.email;
   const i=journal.findIndex(j=>j.id===kp.id); const copy=structuredClone(kp);
   if(i>=0) journal[i]=copy; else journal.push(copy);
-  await persistJournal('Сохранено в журнал'); renderAll(false); $('jcount').textContent=journal.length;
+  await persistJournal(msg||'Сохранено в журнал'); renderAll(false); $('jcount').textContent=journal.length;
+}
+$('btnSave').onclick = ()=>saveKpToJournal();
+
+/* ===== сохранить с новыми курсами (из «Настроек») ===== */
+const RATE_CURS=['USD','EUR','RUB','CNY'];
+$('btnSaveRates').onclick = ()=>{
+  const cur=kp.rates||{}, nw=settings.rates||{};
+  const changed=RATE_CURS.filter(k=>Math.abs(n(cur[k])-n(nw[k]))>1e-9);
+  $('ratesModalText').textContent = changed.length
+    ? `КП будет пересчитано по курсам из «Настроек» (${changed.map(k=>k+' '+fmt2(nw[k])).join(', ')}) и сохранено в журнал.`
+    : 'Курсы в КП уже совпадают с курсами из «Настроек». Сохранить КП в журнал?';
+  $('ratesModalTable').innerHTML = `<thead><tr><th>Валюта</th><th class="r">В этом КП</th><th class="r">Новый курс</th><th class="r">Изменение</th></tr></thead><tbody>${RATE_CURS.map(k=>{
+    const a=n(cur[k]), b=n(nw[k]); const d=a? (b-a)/a*100 : 0; const cls=Math.abs(d)<1e-9?'hint':(d>0?'':'');
+    return `<tr><td><b>${k}</b></td><td class="r num">${fmt2(a)}</td><td class="r num"><b>${fmt2(b)}</b></td><td class="r num ${cls}">${Math.abs(d)<1e-9?'—':(d>0?'+':'')+d.toFixed(2).replace('.',',')+'%'}</td></tr>`; }).join('')}</tbody>`;
+  $('ratesModal').hidden=false;
+};
+$('ratesModalNo').onclick = ()=>{ $('ratesModal').hidden=true; };
+$('ratesModal').addEventListener('click',e=>{ if(e.target===$('ratesModal')) $('ratesModal').hidden=true; });
+$('ratesModalYes').onclick = async ()=>{
+  $('ratesModal').hidden=true;
+  kp.rates={...settings.rates, KZT:1};
+  renderAll(); // пересчёт всех позиций и итогов по новым курсам
+  await saveKpToJournal('КП пересчитано по новым курсам и сохранено в журнал');
 };
 
 /* ============ storage (личный кабинет: Supabase) ============ */
